@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block main %}
+            <div class="header">
+              <h1>Perioda pārskats:</h1>
+            </div>
+
+            <div class="jumbotron">
+               <div>
+                <a href="?periods=sodien"><span class="date">Šodien</span></a> |
+                <a href="?periods=vakar"><span class="date">Vakar</span></a> |
+                <a href="?periods=sonedel"><span class="date">Šonedēļ</span></a> |
+                <a href="?periods=somenes"><span class="date">Šomēnes</span></a> |
+                <a href="?periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
+                <a href="?periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
+
+              <div class="row">
+                <div class="col-md-3" style="text-align: right">
+                  Periods:
+                </div>
+
+                <form action="" method="GET">
+                  <input name="ean" type="text" class="hidden" value="{{ ean }}" />
+                  <div class="form-group col-md-3">
+                    <div class='input-group date' id='datetimepicker8'>
+                      <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                    <div class='input-group date' id='datetimepicker9'>
+                      <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-1">
+                    <input type="submit" class="btn" value="Atlasīt">
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="result">
+
+                <div>Pārskata periods: No
+                  {% if no %}
+                  {{ no }}
+                  {% else %}
+                  laika sākuma
+                  {% endif %}
+                  līdz
+                  {% if lidz %}
+                  {{ lidz }}
+                  {% else %}
+                  laika galam.
+                  {% endif %}
+                </div>
+
+              {% if sales %}
+              <h2>Pārdotās preces:</h2>
+              <table class="table table-striped">
+                <thead>
+                  <th>Transaction</th>
+                  {# <th>Apraksts</th> #}
+                  {# <th>Iepirkuma cena</th> #}
+                  {# <th>Pārdošanas cena</th> #}
+                  {# <th>Atlikums</th> #}
+                  {# <th>Kase</th> #}
+                </thead>
+                <tbody>
+                  {% for sale in sales %}
+                    <a href="/prece?ean={{ sale.product.id() }}">
+                      <tr>
+                        <td>
+                          {{ sale }}
+                        </td>
+                      </tr>
+                    </a>
+                  {% endfor %}
+                  {# <td>{{ product.description }}</td> #}
+                  {# <td>{{ product.priceIn }}</td> #}
+                  {# <td>{{ product.priceOut }}</td> #}
+                  {# <td>{{ product.inStock }}</td> #}
+                  {# <td>{{ product.eka }}</td> #}
+                </tbody>
+              </table>
+              {% endif %}
+
+              {% if purchases %}
+              <h2>Iepirktās preces</h2>
+              <table class="table table-striped">
+                <thead>
+                  <th>Transaction</th>
+                  {# <th>Apraksts</th> #}
+                  {# <th>Iepirkuma cena</th> #}
+                  {# <th>Pārdošanas cena</th> #}
+                  {# <th>Atlikums</th> #}
+                  {# <th>Kase</th> #}
+                </thead>
+                <tbody>
+                  {% for purchase in purchases %}
+                      <tr>
+                        <td>
+                    <a href="/prece?ean={{ purchase.product.id() }}">
+                          {{ purchase }}
+                    </a>
+                        </td>
+                      </tr>
+                  {% endfor %}
+                  {# <td>{{ product.description }}</td> #}
+                  {# <td>{{ product.priceIn }}</td> #}
+                  {# <td>{{ product.priceOut }}</td> #}
+                  {# <td>{{ product.inStock }}</td> #}
+                  {# <td>{{ product.eka }}</td> #}
+                </tbody>
+              </table>
+              {% endif %}
+
+              {% if not purchases and sales %}
+              <span class="alert alert-warning">Nav datu.</span>
+              {% endif%}
+
+            </div>
+          </div>
+
+        <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+        <script type="text/javascript">
+
+          // Load the Visualization API, core charts, table and geo charts.
+          // is included in the corechart package.
+          google.load('visualization', '1.0',
+              {'packages':['corechart']});
+
+          google.setOnLoadCallback(drawChart);
+
+          function drawChart() {
+            var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions'));
+            var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6);
+
+            console.log(json_chart);
+            console.log(json_data);
+
+            var options = {
+                          width: 1000,
+                          height: 500,
+                          title: '',
+                          legend: {position: 'bottom'},
+                          hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color:
+                            'black'}},
+
+                };
+
+
+            json_chart.draw(json_data, options);
+          }
+        </script>
+
+
+{% endblock %}

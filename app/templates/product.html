@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block main %}
+            <div class="header">
+              <h1>Preces pārskats:</h1>
+            </div>
+
+            <div class="jumbotron">
+
+              <form action="" method="GET">
+                <label for="ean">Svītru kods:</label>
+                <input id="ean" name="ean" type="text" placeholder="1234567"
+                {% if ean %}
+                value="{{ ean }}"
+                {% endif %}
+                >
+                <input type="submit" class="btn" value="Atrast">
+              </form>
+
+
+              <div class="result">
+
+              {% if product %}
+
+              <table class="table table-striped">
+                <thead>
+                  <th>Kods</th>
+                  <th>Apraksts</th>
+                  <th>Iepirkuma cena</th>
+                  <th>Pārdošanas cena</th>
+                  <th>Atlikums</th>
+                  <th>Kase</th>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>{{ ean }}</td>
+                  <td>{{ product.description }}</td>
+                  <td>{{ product.priceIn }}</td>
+                  <td>{{ product.priceOut }}</td>
+                  <td>{{ product.inStock }}</td>
+                  <td>{{ product.eka }}</td>
+                </tr>
+                </tbody>
+              </table>
+
+
+              <div>
+                <a href="?ean={{ ean }}&periods=sodien"><span class="date">Šodien</span></a> |
+                <a href="?ean={{ ean }}&periods=vakar"><span class="date">Vakar</span></a> |
+                <a href="?ean={{ ean }}&periods=sonedel"><span class="date">Šonedēļ</span></a> |
+                <a href="?ean={{ ean }}&periods=somenes"><span class="date">Šomēnes</span></a> |
+                <a href="?ean={{ ean }}&periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
+                <a href="?ean={{ ean }}&periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
+
+              <div class="row">
+                <div class="col-md-3" style="text-align: right">
+                  Periods:
+                </div>
+
+                <form action="" method="GET">
+                  <input name="ean" type="text" class="hidden" value="{{ ean }}" />
+                  <div class="form-group col-md-3">
+                    <div class='input-group date' id='datetimepicker8'>
+                      <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                    <div class='input-group date' id='datetimepicker9'>
+                      <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-1">
+                    <input type="submit" class="btn" value="Atlasīt">
+                  </div>
+                </form>
+              </div>
+            </div>
+
+              {% else %}
+                  <span class="alert alert-warning">Prece nav atrasta!</span>
+              {% endif %}
+
+              <div class="transactions">
+
+                {% if t %}
+
+                <div>Pārskata periods: No
+                  {% if no %}
+                    {{ no }}
+                  {% else %}
+                   laika sākuma
+                  {% endif %}
+                  līdz
+                  {% if lidz %}
+                    {{ lidz }}
+                  {% else %}
+                   laika galam.
+                  {% endif %}
+                  </div>
+
+                  <div id="chart_transactions"></div>
+                  <div class="summary">
+                    <strong>Perioda ietvaros:</strong>
+                    <br>
+                    Pārdotais daudzums: {{ countOut }}
+                    Iepirktais daudzums: {{ countIn }}
+                    <br>
+                    Ieņēmumi: {{ income }}
+                    Izdevumi: {{ expenses }}
+                    <br>
+                    {% if expenses > 0 %}
+                    Ieņēmumi/Izdevumi: {{ income/expenses }}
+                    {% endif %}
+
+                  </div>
+
+                {% else %}
+                <span class="alert alert-warning">Nav datu.</span>
+                {% endif%}
+              </div>
+
+
+              </div>
+            </div>
+
+
+        <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+        <script type="text/javascript">
+
+          // Load the Visualization API, core charts, table and geo charts.
+          // is included in the corechart package.
+          google.load('visualization', '1.0',
+              {'packages':['corechart']});
+
+          google.setOnLoadCallback(drawChart);
+
+          function drawChart() {
+            var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions'));
+            var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6);
+
+            console.log(json_chart);
+            console.log(json_data);
+
+            var options = {
+                          width: 1000,
+                          height: 500,
+                          title: '',
+                          legend: {position: 'bottom'},
+                          hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color:
+                            'black'}},
+
+                };
+
+
+            json_chart.draw(json_data, options);
+          }
+        </script>
+
+
+{% endblock %}
