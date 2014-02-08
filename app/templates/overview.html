@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block main %}
             <div class="header">
-              <h1>Perioda pārskats:</h1>
+              <h1>
+                <a href="/">Sākums </a>&gt;
+                Perioda pārskats</h1>
             </div>
 
             <div class="jumbotron">
@@ -43,7 +45,9 @@
             </div>
 
             <div class="result">
-
+              {% if not (no or lidz) %}
+              <span class="alert alert-info">Izvēlieties periodu.</span>
+              {% else %}
                 <div>Pārskata periods: No
                   {% if no %}
                   {{ no }}
@@ -58,104 +62,129 @@
                   {% endif %}
                 </div>
 
-              {% if sales %}
-              <h2>Pārdotās preces:</h2>
-              <table class="table table-striped">
-                <thead>
-                  <th>Transaction</th>
-                  {# <th>Apraksts</th> #}
-                  {# <th>Iepirkuma cena</th> #}
-                  {# <th>Pārdošanas cena</th> #}
-                  {# <th>Atlikums</th> #}
-                  {# <th>Kase</th> #}
-                </thead>
-                <tbody>
-                  {% for sale in sales %}
-                    <a href="/prece?ean={{ sale.product.id() }}">
-                      <tr>
-                        <td>
-                          {{ sale }}
-                        </td>
-                      </tr>
-                    </a>
-                  {% endfor %}
-                  {# <td>{{ product.description }}</td> #}
-                  {# <td>{{ product.priceIn }}</td> #}
-                  {# <td>{{ product.priceOut }}</td> #}
-                  {# <td>{{ product.inStock }}</td> #}
-                  {# <td>{{ product.eka }}</td> #}
-                </tbody>
-              </table>
-              {% endif %}
+                {% if sales %}
+                <div id="list-sales">
+                  <h2>Pārdotās preces</h2>
+                    <table class="table table-striped">
+                      <caption>
+                        <input id="" class="search fuzzy-search" type="search"
+                        name="search" autofocus>
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th class="sort" data-sort="ean">Kods</th>
+                          <th class="sort" data-sort="description">Apraksts</th>
+                          <th class="sort" data-sort="price">Cena</th>
+                          <th class="sort" data-sort="quantity">Daudzums</th>
+                          <th class="sort" data-sort="total">Summa</th>
+                          <th class="sort" data-sort="eka">Kase</th>
+                        </tr>
+                      </thead>
+                      <tbody class="list">
+                        {% for sale in sales %}
+                        {% set product = sale.product.get() %}
+                        {% set price = product.priceOut %}
+                        {% set quantity = sale.quantity %}
+                        {% set ean = sale.product.id() %}
+                        <tr>
+                          <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
+                          <td class="description">{{ product.description }}</td>
+                          <td class="price">{{ price }}</td>
+                          <td class="quantity">{{ quantity }}</td>
+                          <td class="total">{{ quantity * price }}</td>
+                          <td class="eka">{{ sale.eka }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                          <td class="pagination"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                 </div>
+                {% endif %}
 
-              {% if purchases %}
-              <h2>Iepirktās preces</h2>
-              <table class="table table-striped">
-                <thead>
-                  <th>Transaction</th>
-                  {# <th>Apraksts</th> #}
-                  {# <th>Iepirkuma cena</th> #}
-                  {# <th>Pārdošanas cena</th> #}
-                  {# <th>Atlikums</th> #}
-                  {# <th>Kase</th> #}
-                </thead>
-                <tbody>
-                  {% for purchase in purchases %}
-                      <tr>
-                        <td>
-                    <a href="/prece?ean={{ purchase.product.id() }}">
-                          {{ purchase }}
-                    </a>
-                        </td>
-                      </tr>
-                  {% endfor %}
-                  {# <td>{{ product.description }}</td> #}
-                  {# <td>{{ product.priceIn }}</td> #}
-                  {# <td>{{ product.priceOut }}</td> #}
-                  {# <td>{{ product.inStock }}</td> #}
-                  {# <td>{{ product.eka }}</td> #}
-                </tbody>
-              </table>
-              {% endif %}
+                {% if purchases %}
+                <div id="list-purchases">
+                  <h2>Iepirktās preces</h2>
+                    <table class="table table-striped">
+                      <caption>
+                        <input id="" class="search fuzzy-search" type="search"
+                        name="search" autofocus>
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th class="sort" data-sort="ean">Kods</th>
+                          <th class="sort" data-sort="description">Apraksts</th>
+                          <th class="sort" data-sort="price">Cena</th>
+                          <th class="sort" data-sort="quantity">Daudzums</th>
+                          <th class="sort" data-sort="total">Summa</th>
+                          <th class="sort" data-sort="eka">Kase</th>
+                        </tr>
+                      </thead>
+                      <tbody class="list">
+                        {% for purchase in purchases %}
+                        {% set product = purchase.product.get() %}
+                        {% set price = purchase.price %}
+                        {% set quantity = purchase.quantity %}
+                        {% set ean = purchase.product.id() %}
+                        <tr>
+                          <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
+                          <td class="description">{{ product.description }}</td>
+                          <td class="price">{{ price }}</td>
+                          <td class="quantity">{{ quantity }}</td>
+                          <td class="total">{{ quantity * price }}</td>
+                          <td class="eka">{{ product.eka }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                          <td class="pagination"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                 </div>
 
-              {% if not purchases and sales %}
+                {% endif %}
+
+              {% endif%}
+
+              {% if not (purchases or sales) %}
               <span class="alert alert-warning">Nav datu.</span>
               {% endif%}
 
             </div>
           </div>
 
-        <script src="https://www.google.com/jsapi" type="text/javascript"></script>
-        <script type="text/javascript">
+        {# <script src="https://www.google.com/jsapi" type="text/javascript"></script> #}
+        {# <script type="text/javascript"> #}
 
-          // Load the Visualization API, core charts, table and geo charts.
-          // is included in the corechart package.
-          google.load('visualization', '1.0',
-              {'packages':['corechart']});
+        {#   // Load the Visualization API, core charts, table and geo charts. #}
+        {#   // is included in the corechart package. #}
+        {#   google.load('visualization', '1.0', #}
+        {#       {'packages':['corechart']}); #}
 
-          google.setOnLoadCallback(drawChart);
+        {#   google.setOnLoadCallback(drawChart); #}
 
-          function drawChart() {
-            var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions'));
-            var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6);
+        {#   function drawChart() { #}
+        {#     var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions')); #}
+        {#     var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6); #}
 
-            console.log(json_chart);
-            console.log(json_data);
+        {#     console.log(json_chart); #}
+        {#     console.log(json_data); #}
 
-            var options = {
-                          width: 1000,
-                          height: 500,
-                          title: '',
-                          legend: {position: 'bottom'},
-                          hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color:
-                            'black'}},
+        {#     var options = { #}
+        {#                   width: 1000, #}
+        {#                   height: 500, #}
+        {#                   title: '', #}
+        {#                   legend: {position: 'bottom'}, #}
+        {#                   hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color: #}
+        {#                     'black'}}, #}
 
-                };
+        {#         }; #}
 
 
-            json_chart.draw(json_data, options);
-          }
-        </script>
+        {#     json_chart.draw(json_data, options); #}
+        {#   } #}
+        {# </script> #}
 
 
 {% endblock %}

@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 {% block main %}
             <div class="header">
-              <h1>Preces pārskats:</h1>
+              <h1>
+                <a href="/">Sākums </a>&gt;
+                Preces pārskats
+              </h1>
             </div>
 
             <div class="jumbotron">
 
               <form action="" method="GET">
                 <label for="ean">Svītru kods:</label>
-                <input id="ean" name="ean" type="text" placeholder="1234567"
+                <input id="ean" name="ean" type="search" placeholder="1234567"
                 {% if ean %}
                 value="{{ ean }}"
                 {% endif %}
-                >
+                autofocus>
                 <input type="submit" class="btn" value="Atrast">
               </form>
 

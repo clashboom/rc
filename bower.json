@@ -9,7 +9,8 @@
     "listjs": "~1.1.0",
     "list.fuzzysearch.js": "~0.1.0",
     "bootstrap3-datetimepicker": "~2.1.30",
-    "moment": "~2.5.1"
+    "moment": "~2.5.1",
+    "list.pagination.js": "~0.1.1"
   },
   "devDependencies": {}
 }

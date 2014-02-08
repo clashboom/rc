@@ -1,44 +1,12 @@
 {% extends "base.html" %}
 {% block main %}
-            <div class="header">
-              <h1>Preču kustība:</h1>
+            <div class="header h1">
+              <h1>Sākums</h1>
             </div>
 
             <div class="jumbotron">
-              <a href="?ean={{ ean }}&periods=sodien"><span class="date">Šodien</span></a> |
-              <a href="?ean={{ ean }}&periods=vakar"><span class="date">Vakar</span></a> |
-              <a href="?ean={{ ean }}&periods=sonedel"><span class="date">Šonedēļ</span></a> |
-              <a href="?ean={{ ean }}&periods=somenes"><span class="date">Šomēnes</span></a> |
-              <a href="?ean={{ ean }}&periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
-              <a href="?ean={{ ean }}&periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
-
-              <div class="row">
-                <div class="col-md-3" style="text-align: right">
-                  Periods:
-                </div>
-
-                <form action="" method="GET">
-                  <input name="ean" type="text" class="hidden" value="{{ ean }}" />
-                  <div class="form-group col-md-3">
-                    <div class='input-group date' id='datetimepicker8'>
-                      <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="form-group col-md-3">
-                    <div class='input-group date' id='datetimepicker9'>
-                      <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="col-md-1">
-                    <input type="submit" class="btn" value="Atlasīt">
-                  </div>
-                </form>
-              </div>
+              <a href="/parskats"><span class="btn-default btn">Perioda pārskats</span></a>
+              <a href="/prece"><span class="btn-default btn">Preces pārskats</span></a>
               <hr>
               <a href="/db">Populate DB</a>
             </div>

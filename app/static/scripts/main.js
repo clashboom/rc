@@ -2,6 +2,7 @@
     paths: {
 			jquery: '../../bower_components/jquery/jquery',
 			listJs: '../../bower_components/listjs/dist/list',
+      listPagination: '../../bower_components/list.pagination.js/dist/list.pagination',
 			fuzzySearch: '../../bower_components/list.fuzzysearch.js/dist/list.fuzzysearch',
       datepicker: '../../bower_components/bootstrap3-datetimepicker/build/js/bootstrap-datetimepicker.min',
       moment: '../../bower_components/moment/moment'
@@ -11,17 +12,23 @@
 			jquery: {
 				exports: 'jquery'
 			},
+      listJs: {
+        exports: 'List'
+      },
+      listPagination: {
+        deps: ['listJs']
+      },
 			fuzzySearch: {
-				deps: ['listJs'],
+				deps: ['listJs']
 			},
       datepicker: {
         deps: ['jquery', 'moment']
       }
-		},
+		}
 	});
 
-require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'datepicker'],
-				function (domReady, List, $, fuzzySearch, datepicker) {
+require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'listPagination', 'datepicker'],
+				function (domReady, List, $, fuzzySearch, listPagination, datepicker) {
 	"use strict";
 
 	domReady(function() {
@@ -36,16 +43,17 @@ require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'datepicker'],
 		};
 
 		var options = {
-			valueNames: ['description', 'code'],
-      // listClass: "list",
-      // searchClass: "search",
-      // sortClass: "sort",
-      // indexAsync: "false",
-      // page: 200,
-			plugins: [ fuzzySearch() ],
+			valueNames: ['ean', 'description'],
+      listClass: "list",
+      searchClass: "search",
+      sortClass: "sort",
+      indexAsync: "false",
+      page: 10,
+			plugins: [ listPagination({}), fuzzySearch() ],
 
 		};
-		var productList = new List('fuzzy-list', options);
+		var purchaseList = new List('list-purchases', options);
+		var salesList = new List('list-sales', options);
 
 
     // Bootstrap Datetimepicker

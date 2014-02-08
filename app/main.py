@@ -120,7 +120,7 @@ class Purchase(Transaction):
 
 class Sale(Transaction):
     @staticmethod
-    def Process(ean, quantity, time):
+    def Process(ean, quantity, time, eka):
         k = ndb.Key('Product', ean)
         product = k.get()
 
@@ -130,10 +130,17 @@ class Sale(Transaction):
             price = product.priceOut
             product.inStock -= quantity
             product.put()
-            s = Sale(product=k, quantity=quantity, price=price, time=time)
+            s = Sale(product=k, quantity=quantity, price=price, time=time,
+                     eka=eka)
+            if not product.eka:
+                product.eka = eka
+            elif product.eka != eka:
+                logging.error('Product has been asigned to %s, but sale was \
+                              from %s.' % (product.eka, eka))
             s.put()
         else:
-            logging.error("SALE COULD NOT GET YOUR BLOODY PRODUCT!")
+            logging.error('Sale could not be processed: \
+                          Could not retrieve the product.')
 
 
 class PurchaseHandler(Handler):
@@ -159,6 +166,16 @@ class SalesHandler(Handler):
 
 class Utilities(Handler):
     @staticmethod
+    def translateEka(eka):
+        ekaDict = {'0063': 'Viesturs',
+                   '0040': 'Ilga',
+                   '0000': 'Sigita',
+                   '0084': 'Daiga',
+                   '0704': 'Ivars',
+                   '1360': 'Inga'}
+        return ekaDict[eka]
+
+    @staticmethod
     def translateDates(no=None, lidz=None, periods=None):
         """
         Translates dates from javascript datetimepicker to type datetime.
@@ -175,14 +192,18 @@ class Utilities(Handler):
             today = datetime(year=now.year, month=now.month, day=now.day)
             if periods == 'sodien':
                 no = today
+                lidz = today + timedelta(days=1)
             elif periods == 'vakar':
                 no = today - timedelta(days=1)
+                lidz = today
             elif periods == 'sonedel':
                 # no need for -1 because weekdays are 0 indexed
                 no = today - timedelta(days=today.weekday())
+                lidz = no + timedelta(weeks=1)
             elif periods == 'somenes':
                 # need -1 here because there is no 0th day of the month
                 no = today - timedelta(days=today.day - 1)
+                lidz = no + timedelta(weeks=4)
             elif periods == 'ieprnedela':
                 thisweek = today - timedelta(today.weekday())
                 no = thisweek - timedelta(weeks=1)
@@ -250,35 +271,41 @@ class ProductViewer(Handler):
     def get(self):
         # Lego my ego
 
+        params = dict()
+
         ean = self.request.get('ean')
-        key = ndb.Key('Product', ean)
-        product = key.get()
 
-        periods = self.request.get('periods')
-        no = self.request.get('no')
-        lidz = self.request.get('lidz')
+        if ean:
+            key = ndb.Key('Product', ean)
+            product = key.get()
 
-        no, lidz = Utilities.translateDates(no=no, lidz=lidz, periods=periods)
-        purchases, sales = Utilities.getTransactions(no, lidz, key)
-        transactionData = Utilities.gvizTransactions(purchases, sales)
+            periods = self.request.get('periods')
+            no = self.request.get('no')
+            lidz = self.request.get('lidz')
 
-        priceIn = product.priceIn if product else 0
-        priceOut = product.priceOut if product else 0
-        countIn = sum([purchase.quantity for purchase in purchases])
-        countOut = sum([sale.quantity for sale in sales])
-        expenses = countIn * priceIn
-        income = countOut * priceOut
+            no, lidz = Utilities.translateDates(no=no, lidz=lidz,
+                                                periods=periods)
+            purchases, sales = Utilities.getTransactions(no, lidz, key)
+            transactionData = Utilities.gvizTransactions(purchases, sales)
 
-        params = {'product': product,
-                  'ean': ean,
-                  't': transactionData,
-                  'no': no,
-                  'lidz': lidz,
-                  'countIn': countIn,
-                  'countOut': countOut,
-                  'income': income,
-                  'expenses': expenses
-                  }
+            priceIn = product.priceIn if product else 0
+            priceOut = product.priceOut if product else 0
+            countIn = sum([purchase.quantity for purchase in purchases])
+            countOut = sum([sale.quantity for sale in sales])
+            expenses = countIn * priceIn
+            income = countOut * priceOut
+            product.eka = Utilities.translateEka(product.eka)
+
+            params = {'product': product,
+                      'ean': ean,
+                      't': transactionData,
+                      'no': no,
+                      'lidz': lidz,
+                      'countIn': countIn,
+                      'countOut': countOut,
+                      'income': income,
+                      'expenses': expenses
+                      }
 
         self.render('product.html', **params)
 
@@ -295,6 +322,14 @@ class Overview(Handler):
         params = {'no': no,
                   'lidz': lidz,
                   'purchases': purchases,
+                  'purchaseCount': len(purchases),
+                  'purchaseTotal': sum([purchase.quantity *
+                                        purchase.price
+                                        for purchase in purchases]),
+                  'saleCount': len(sales),
+                  'saleTotal': sum([sale.quantity *
+                                    sale.product.get().priceOut
+                                    for sale in sales]),
                   'sales': sales
                   }
 
@@ -303,9 +338,12 @@ class Overview(Handler):
 
 class PopulateDB(Handler):
     def get(self):
-        purchases = []
+
         eans = ['1234567', '1234568', '3421567', '4321234', '2123459']
-        for i in range(1000):
+        ekas = ['0063', '0040', '0000', '0084', '0704', '1360']
+
+        purchases = []
+        for i in range(100):
 
             dt = '2013 ' + str(random.randint(1, 12)).zfill(2) + ' ' +\
                 str(random.randint(1, 28)).zfill(2) + ' ' +\
@@ -320,14 +358,15 @@ class PopulateDB(Handler):
                  ' ' + str(random.randint(5, 100)) + 'm rullis',
                  'price': float(random.randint(1, 10)),
                  'quantity': random.randint(1, 15),
-                 'time': time}
+                 'time': time,
+                 }
             purchases.append(q)
 
         for purchase in purchases:
             Purchase.Process(**purchase)
 
         sales = []
-        for i in range(1000):
+        for i in range(100):
             dt = '2013 ' + str(random.randint(1, 12)).zfill(2) + ' ' +\
                 str(random.randint(1, 28)).zfill(2) + ' ' +\
                 str(random.randint(8, 18)).zfill(2) + ':' +\
@@ -338,7 +377,9 @@ class PopulateDB(Handler):
 
             q = {'ean': random.choice(eans),
                  'quantity': random.randint(1, 15),
-                 'time': time}
+                 'time': time,
+                 'eka': random.choice(ekas)
+                 }
             sales.append(q)
 
         for sale in sales:
