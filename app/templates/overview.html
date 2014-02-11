@@ -1,4 +1,103 @@
-{% extends "base.html" %}
+% extends "base.html" %}
+
+{# END OF VARIABLES #}
+
+{# MACROS #}
+{% macro listSales(sales) -%}
+{% for sale in sales %}
+  {% if sale.eka == eka %}
+    {% set product = sale.product.get() %}
+    {% set price = product.priceOut %}
+    {% set quantity = sale.quantity %}
+    {% set ean = sale.product.id() %}
+    <tr>
+      <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
+      <td class="description">{{ product.description }}</td>
+      <td class="price">{{ price }}</td>
+      <td class="quantity">{{ quantity }}</td>
+      <td class="total">{{ quantity * price }}</td>
+      <td class="eka">{{ sale.eka }}</td>
+    </tr>
+  {% endif %}
+{% endfor %}
+{%- endmacro %}
+
+  <table class="table table-striped col-xs-6">
+    <caption>
+      <input id="" class="search fuzzy-search" type="search"
+      name="search" autofocus>
+    </caption>
+    <thead>
+      <tr>
+        <th class="sort" data-sort="ean">Kods</th>
+        <th class="sort" data-sort="description">Apraksts</th>
+        <th class="sort" data-sort="price">Cena</th>
+        <th class="sort" data-sort="quantity">Daudzums</th>
+        <th class="sort" data-sort="total">Summa</th>
+      </tr>
+    </thead>
+    <tbody class="list">
+      {{ rows }}
+      <tr>
+        <td class="pagination"></td>
+      </tr>
+    </tbody>
+  </table>
+
+{% macro generateRow(title, eka) -%}
+<div id="list-{{ eka.idn }}" class="row">
+  <h2>{{ title }}</h2>
+
+  {{ generateTable(listSales(eka.sales)) }}
+  {{ generateTable(listPurchases(eka.purchases)) }}
+
+</div>
+{% endmacro -%}
+
+{% macro purchasesByEka(eka) -%}
+<div id="list-purchases-{{ eka }}">
+  <h2>Iepirktās preces: {{ purchaseTotal }} Ls</h2>
+  <table class="table table-striped">
+    <caption>
+      <input id="" class="search fuzzy-search" type="search"
+      name="search" autofocus>
+    </caption>
+    <thead>
+      <tr>
+        <th class="sort" data-sort="ean">kods</th>
+        <th class="sort" data-sort="description">apraksts</th>
+        <th class="sort" data-sort="price">cena</th>
+        <th class="sort" data-sort="quantity">daudzums</th>
+        <th class="sort" data-sort="total">summa</th>
+      </tr>
+    </thead>
+    <tbody class="list">
+      {% for purchase in purchases %}
+        {% if purchase.product.get().eka == eka %}
+          {% set product = purchase.product.get() %}
+          {% set price = purchase.price %}
+          {% set quantity = purchase.quantity %}
+          {% set ean = purchase.product.id() %}
+          <tr>
+            <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
+            <td class="description">{{ product.description }}</td>
+            <td class="price">{{ price }}</td>
+            <td class="quantity">{{ quantity }}</td>
+            <td class="total">{{ quantity * price }}</td>
+            <td class="eka">{{ product.eka }}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+      <tr>
+        <td class="pagination"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
+
+{# END OF MACROS #}
+
 {% block main %}
             <div class="header">
               <h1>
@@ -46,7 +145,7 @@
 
             <div class="result">
               {% if not (no or lidz) %}
-              <span class="alert alert-info">Izvēlieties periodu.</span>
+                <span class="alert alert-info">Izvēlieties periodu.</span>
               {% else %}
                 <div>Pārskata periods: No
                   {% if no %}
@@ -63,92 +162,22 @@
                 </div>
 
                 {% if sales %}
-                <div id="list-sales">
-                  <h2>Pārdotās preces</h2>
-                    <table class="table table-striped">
-                      <caption>
-                        <input id="" class="search fuzzy-search" type="search"
-                        name="search" autofocus>
-                      </caption>
-                      <thead>
-                        <tr>
-                          <th class="sort" data-sort="ean">Kods</th>
-                          <th class="sort" data-sort="description">Apraksts</th>
-                          <th class="sort" data-sort="price">Cena</th>
-                          <th class="sort" data-sort="quantity">Daudzums</th>
-                          <th class="sort" data-sort="total">Summa</th>
-                          <th class="sort" data-sort="eka">Kase</th>
-                        </tr>
-                      </thead>
-                      <tbody class="list">
-                        {% for sale in sales %}
-                        {% set product = sale.product.get() %}
-                        {% set price = product.priceOut %}
-                        {% set quantity = sale.quantity %}
-                        {% set ean = sale.product.id() %}
-                        <tr>
-                          <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
-                          <td class="description">{{ product.description }}</td>
-                          <td class="price">{{ price }}</td>
-                          <td class="quantity">{{ quantity }}</td>
-                          <td class="total">{{ quantity * price }}</td>
-                          <td class="eka">{{ sale.eka }}</td>
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                          <td class="pagination"></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                 </div>
+                  {% for eka in ekas %}
+                    <div class="col-xs-6">
+                      {{ salesByEka(eka) }}
+                    </div>
+                  {% endfor %}
                 {% endif %}
 
                 {% if purchases %}
-                <div id="list-purchases">
-                  <h2>Iepirktās preces</h2>
-                    <table class="table table-striped">
-                      <caption>
-                        <input id="" class="search fuzzy-search" type="search"
-                        name="search" autofocus>
-                      </caption>
-                      <thead>
-                        <tr>
-                          <th class="sort" data-sort="ean">Kods</th>
-                          <th class="sort" data-sort="description">Apraksts</th>
-                          <th class="sort" data-sort="price">Cena</th>
-                          <th class="sort" data-sort="quantity">Daudzums</th>
-                          <th class="sort" data-sort="total">Summa</th>
-                          <th class="sort" data-sort="eka">Kase</th>
-                        </tr>
-                      </thead>
-                      <tbody class="list">
-                        {% for purchase in purchases %}
-                        {% set product = purchase.product.get() %}
-                        {% set price = purchase.price %}
-                        {% set quantity = purchase.quantity %}
-                        {% set ean = purchase.product.id() %}
-                        <tr>
-                          <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
-                          <td class="description">{{ product.description }}</td>
-                          <td class="price">{{ price }}</td>
-                          <td class="quantity">{{ quantity }}</td>
-                          <td class="total">{{ quantity * price }}</td>
-                          <td class="eka">{{ product.eka }}</td>
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                          <td class="pagination"></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                 </div>
-
-                {% endif %}
-
-              {% endif%}
-
-              {% if not (purchases or sales) %}
-              <span class="alert alert-warning">Nav datu.</span>
+                  {% for eka in ekas %}
+                    <div class="col-xs-6">
+                      {{ salesByEka(eka) }}
+                    </div>
+                  {% endfor %}
+                {% elif not (purchases or sales) %}
+                  <span class="alert alert-warning">Nav datu.</span>
+                {% endif%}
               {% endif%}
 
             </div>

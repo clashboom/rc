@@ -114,7 +114,7 @@ class Purchase(Transaction):
 
         purchase = Purchase(product=ndb.Key('Product', ean),
                             quantity=quantity,
-                            price=price, time=time)
+                            price=price, time=time, eka=product.eka)
         purchase.put()
 
 
@@ -135,6 +135,7 @@ class Sale(Transaction):
             if not product.eka:
                 product.eka = eka
             elif product.eka != eka:
+                # TODO: delete this, find other way to log
                 logging.error('Product has been asigned to %s, but sale was \
                               from %s.' % (product.eka, eka))
             s.put()
@@ -310,6 +311,19 @@ class ProductViewer(Handler):
         self.render('product.html', **params)
 
 
+class Eka(Handler):
+    #TODO: populate them slots for optimization
+    # __slots__ = ['name', 'idn', 'sales', 'purchases']
+
+    def __init__(self, name, idn, sales=False, purchases=False):
+        self.name = name
+        self.idn = idn
+        if sales:
+            self.sales = filter(lambda x: x.eka == self.idn, sales)
+        if purchases:
+            self.purchases = filter(lambda x: x.eka == self.idn, purchases)
+
+
 class Overview(Handler):
     def get(self):
         periods = self.request.get('periods')
@@ -318,6 +332,17 @@ class Overview(Handler):
 
         no, lidz = Utilities.translateDates(no=no, lidz=lidz, periods=periods)
         purchases, sales = Utilities.getTransactions(no, lidz)
+
+        viesturs = Eka('Viestura', '0063', sales, purchases)
+        ilga = Eka('Ilgas', '0040', sales, purchases)
+        sigita = Eka('Sigitas', '0000', sales, purchases)
+        daiga = Eka('Daigas', '0084', sales, purchases)
+        ivars = Eka('Ivars', '0704', sales, purchases)
+        inga = Eka('Ingas', '1360', sales, purchases)
+        noneka = Eka('??', None, sales=False, purchases=purchases)
+        logging.info(noneka)
+
+        ekas = [viesturs, ilga, sigita, daiga, ivars, inga]
 
         params = {'no': no,
                   'lidz': lidz,
@@ -330,7 +355,9 @@ class Overview(Handler):
                   'saleTotal': sum([sale.quantity *
                                     sale.product.get().priceOut
                                     for sale in sales]),
-                  'sales': sales
+                  'sales': sales,
+                  'purchases': purchases,
+                  'ekas': ekas
                   }
 
         self.render('overview.html', **params)
@@ -345,7 +372,7 @@ class PopulateDB(Handler):
         purchases = []
         for i in range(100):
 
-            dt = '2013 ' + str(random.randint(1, 12)).zfill(2) + ' ' +\
+            dt = '2014 ' + str(random.randint(1, 2)).zfill(2) + ' ' +\
                 str(random.randint(1, 28)).zfill(2) + ' ' +\
                 str(random.randint(8, 18)).zfill(2) + ':' +\
                 str(random.randint(0, 59)).zfill(2) + ':' +\
@@ -367,7 +394,7 @@ class PopulateDB(Handler):
 
         sales = []
         for i in range(100):
-            dt = '2013 ' + str(random.randint(1, 12)).zfill(2) + ' ' +\
+            dt = '2014 ' + str(random.randint(1, 2)).zfill(2) + ' ' +\
                 str(random.randint(1, 28)).zfill(2) + ' ' +\
                 str(random.randint(8, 18)).zfill(2) + ':' +\
                 str(random.randint(0, 59)).zfill(2) + ':' +\
@@ -375,7 +402,7 @@ class PopulateDB(Handler):
 
             time = datetime.strptime(dt, '%Y %m %d %H:%M:%S')
 
-            q = {'ean': random.choice(eans),
+            q = {'ean': random.choice(eans[:3]),
                  'quantity': random.randint(1, 15),
                  'time': time,
                  'eka': random.choice(ekas)

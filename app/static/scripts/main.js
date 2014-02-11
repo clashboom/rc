@@ -2,8 +2,8 @@
     paths: {
 			jquery: '../../bower_components/jquery/jquery',
 			listJs: '../../bower_components/listjs/dist/list',
-      listPagination: '../../bower_components/list.pagination.js/dist/list.pagination',
 			fuzzySearch: '../../bower_components/list.fuzzysearch.js/dist/list.fuzzysearch',
+      // listPagination: '../../bower_components/list.pagination.js/dist/list.pagination',
       datepicker: '../../bower_components/bootstrap3-datetimepicker/build/js/bootstrap-datetimepicker.min',
       moment: '../../bower_components/moment/moment'
 		},
@@ -12,12 +12,6 @@
 			jquery: {
 				exports: 'jquery'
 			},
-      listJs: {
-        exports: 'List'
-      },
-      listPagination: {
-        deps: ['listJs']
-      },
 			fuzzySearch: {
 				deps: ['listJs']
 			},
@@ -27,8 +21,8 @@
 		}
 	});
 
-require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'listPagination', 'datepicker'],
-				function (domReady, List, $, fuzzySearch, listPagination, datepicker) {
+require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'datepicker'],
+				function (domReady, List, $, fuzzySearch, datepicker) {
 	"use strict";
 
 	domReady(function() {
@@ -47,11 +41,11 @@ require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'listPagination', 'datep
       listClass: "list",
       searchClass: "search",
       sortClass: "sort",
-      indexAsync: "false",
-      page: 10,
-			plugins: [ listPagination({}), fuzzySearch() ],
-
+      indexAsync: false,
+      // page: 10,
+			plugins: [ fuzzySearch() ]
 		};
+
 		var purchaseList = new List('list-purchases', options);
 		var salesList = new List('list-sales', options);
 
