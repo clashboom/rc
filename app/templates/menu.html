@@ -1,13 +1,25 @@
 {% extends "base.html" %}
 {% block main %}
-            <div class="header h1">
-              <h1>Sākums</h1>
+            <div class="info-row">
+              <ol class="breadcrumb">
+                <li class="active">Sākums</li>
+              </ol>
             </div>
-
-            <div class="jumbotron">
-              <a href="/parskats"><span class="btn-default btn">Perioda pārskats</span></a>
-              <a href="/prece"><span class="btn-default btn">Preces pārskats</span></a>
-              <hr>
-              <a href="/db">Populate DB</a>
+            <div class="main-menu">
+              <ul class="main-menu-list">
+                <li>
+                  <a href="/parskats">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                    <span class="description">Perioda pārskats</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/prece">
+                    <span class="glyphicon glyphicon-barcode"></span>
+                    <span class="description">Preces pārskats</span>
+                  </a>
+                </li>
+              </ul>
             </div>
+          <a href="/db" class="label label-warning pull-right">Populate DB</a>
 {% endblock %}

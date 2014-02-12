@@ -1,167 +1,176 @@
 {% extends "base.html" %}
 {% block main %}
-            <div class="header">
-              <h1>
-                <a href="/">Sākums </a>&gt;
-                Preces pārskats
-              </h1>
-            </div>
+  <div class="info-row">
+    <ol class="breadcrumb">
+      <li><a href="/">Sākums</a></li>
+      <li class="active">Preces pārskats</li>
+    </ol>
+  </div>
 
-            <div class="jumbotron">
+  <div class="container">
+    <div class="row padded">
+    <form action="" method="GET">
+      <div class="col-lg-1">
+        <label for="ean" class="label label-info pull-right">Svītru kods:</label>
+      </div>
 
-              <form action="" method="GET">
-                <label for="ean">Svītru kods:</label>
-                <input id="ean" name="ean" type="search" placeholder="1234567"
-                {% if ean %}
-                value="{{ ean }}"
-                {% endif %}
-                autofocus>
-                <input type="submit" class="btn" value="Atrast">
-              </form>
-
-
-              <div class="result">
-
-              {% if product %}
-
-              <table class="table table-striped">
-                <thead>
-                  <th>Kods</th>
-                  <th>Apraksts</th>
-                  <th>Iepirkuma cena</th>
-                  <th>Pārdošanas cena</th>
-                  <th>Atlikums</th>
-                  <th>Kase</th>
-                </thead>
-                <tbody>
-                <tr>
-                  <td>{{ ean }}</td>
-                  <td>{{ product.description }}</td>
-                  <td>{{ product.priceIn }}</td>
-                  <td>{{ product.priceOut }}</td>
-                  <td>{{ product.inStock }}</td>
-                  <td>{{ product.eka }}</td>
-                </tr>
-                </tbody>
-              </table>
+      <div class="input-group col-lg-11 pull-right">
+        <input id="ean" class="form-control" name="ean" type="text" placeholder="1234567"
+        {% if ean %}
+        value="{{ ean }}"
+        {% endif %}
+        autofocus>
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Meklēt!</button>
+        </span>
+      </div><!-- /input-group -->
+    </form>
+  </div>
 
 
-              <div>
-                <a href="?ean={{ ean }}&periods=sodien"><span class="date">Šodien</span></a> |
-                <a href="?ean={{ ean }}&periods=vakar"><span class="date">Vakar</span></a> |
-                <a href="?ean={{ ean }}&periods=sonedel"><span class="date">Šonedēļ</span></a> |
-                <a href="?ean={{ ean }}&periods=somenes"><span class="date">Šomēnes</span></a> |
-                <a href="?ean={{ ean }}&periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
-                <a href="?ean={{ ean }}&periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
+    <div class="result">
 
-              <div class="row">
-                <div class="col-md-3" style="text-align: right">
-                  Periods:
-                </div>
+    {% if product %}
 
-                <form action="" method="GET">
-                  <input name="ean" type="text" class="hidden" value="{{ ean }}" />
-                  <div class="form-group col-md-3">
-                    <div class='input-group date' id='datetimepicker8'>
-                      <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="form-group col-md-3">
-                    <div class='input-group date' id='datetimepicker9'>
-                      <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="col-md-1">
-                    <input type="submit" class="btn" value="Atlasīt">
-                  </div>
-                </form>
-              </div>
-            </div>
-
-              {% else %}
-                  <span class="alert alert-warning">Prece nav atrasta!</span>
-              {% endif %}
-
-              <div class="transactions">
-
-                {% if t %}
-
-                <div>Pārskata periods: No
-                  {% if no %}
-                    {{ no }}
-                  {% else %}
-                   laika sākuma
-                  {% endif %}
-                  līdz
-                  {% if lidz %}
-                    {{ lidz }}
-                  {% else %}
-                   laika galam.
-                  {% endif %}
-                  </div>
-
-                  <div id="chart_transactions"></div>
-                  <div class="summary">
-                    <strong>Perioda ietvaros:</strong>
-                    <br>
-                    Pārdotais daudzums: {{ countOut }}
-                    Iepirktais daudzums: {{ countIn }}
-                    <br>
-                    Ieņēmumi: {{ income }}
-                    Izdevumi: {{ expenses }}
-                    <br>
-                    {% if expenses > 0 %}
-                    Ieņēmumi/Izdevumi: {{ income/expenses }}
-                    {% endif %}
-
-                  </div>
-
-                {% else %}
-                <span class="alert alert-warning">Nav datu.</span>
-                {% endif%}
-              </div>
+    <table class="table table-striped">
+      <thead>
+        <th>Kods</th>
+        <th>Apraksts</th>
+        <th>Iepirkuma cena</th>
+        <th>Pārdošanas cena</th>
+        <th>Atlikums</th>
+        <th>Kase</th>
+      </thead>
+      <tbody>
+      <tr>
+        <td>{{ ean }}</td>
+        <td>{{ product.description }}</td>
+        <td>{{ product.priceIn }}</td>
+        <td>{{ product.priceOut }}</td>
+        <td>{{ product.inStock }}</td>
+        <td>{{ product.eka }}</td>
+      </tr>
+      </tbody>
+    </table>
 
 
-              </div>
-            </div>
+    <div>
+      <a href="?ean={{ ean }}&periods=sodien"><span class="date">Šodien</span></a> |
+      <a href="?ean={{ ean }}&periods=vakar"><span class="date">Vakar</span></a> |
+      <a href="?ean={{ ean }}&periods=sonedel"><span class="date">Šonedēļ</span></a> |
+      <a href="?ean={{ ean }}&periods=somenes"><span class="date">Šomēnes</span></a> |
+      <a href="?ean={{ ean }}&periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
+      <a href="?ean={{ ean }}&periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
+
+    <div class="row">
+      <div class="col-md-3" style="text-align: right">
+        Periods:
+      </div>
+
+      <form action="" method="GET">
+        <input name="ean" type="text" class="hidden" value="{{ ean }}" />
+        <div class="form-group col-md-3">
+          <div class='input-group date' id='datetimepicker8'>
+            <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group col-md-3">
+          <div class='input-group date' id='datetimepicker9'>
+            <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <input type="submit" class="btn" value="Atlasīt">
+        </div>
+      </form>
+    </div>
+  </div>
+
+    {% else %}
+        <span class="alert alert-warning">Prece nav atrasta!</span>
+    {% endif %}
+
+    <div class="transactions">
+
+      {% if t %}
+
+      <div>Pārskata periods: No
+        {% if no %}
+          {{ no }}
+        {% else %}
+          laika sākuma
+        {% endif %}
+        līdz
+        {% if lidz %}
+          {{ lidz }}
+        {% else %}
+          laika galam.
+        {% endif %}
+        </div>
+
+        <div id="chart_transactions"></div>
+        <hr>
+        <div class="summary text-left">
+          <strong>Perioda ietvaros:</strong>
+          <br>
+          Pārdotais daudzums: {{ countOut }}
+          Iepirktais daudzums: {{ countIn }}
+          <br>
+          Ieņēmumi: <strong>{{ income }}</strong> &euro;
+          Izdevumi: <strong>{{ expenses }}</strong> &euro;
+          <br>
+          {% if expenses > 0 %}
+          Ieņēmumu/Izdevumu attiecība: {{ income/expenses }}
+          {% endif %}
+
+        </div>
+
+      {% else %}
+      <span class="alert alert-warning">Nav datu.</span>
+      {% endif%}
+    </div>
 
 
-        <script src="https://www.google.com/jsapi" type="text/javascript"></script>
-        <script type="text/javascript">
-
-          // Load the Visualization API, core charts, table and geo charts.
-          // is included in the corechart package.
-          google.load('visualization', '1.0',
-              {'packages':['corechart']});
-
-          google.setOnLoadCallback(drawChart);
-
-          function drawChart() {
-            var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions'));
-            var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6);
-
-            console.log(json_chart);
-            console.log(json_data);
-
-            var options = {
-                          width: 1000,
-                          height: 500,
-                          title: '',
-                          legend: {position: 'bottom'},
-                          hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color:
-                            'black'}},
-
-                };
+    </div>
+  </div>
 
 
-            json_chart.draw(json_data, options);
-          }
-        </script>
+  <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+  <script type="text/javascript">
+
+    // Load the Visualization API, core charts, table and geo charts.
+    // is included in the corechart package.
+    google.load('visualization', '1.0',
+        {'packages':['corechart']});
+
+    google.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions'));
+      var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6);
+
+      console.log(json_chart);
+      console.log(json_data);
+
+      var options = {
+                    width: 1000,
+                    height: 500,
+                    title: '',
+                    legend: {position: 'bottom'},
+                    hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color:
+                      'black'}},
+
+          };
+
+
+      json_chart.draw(json_data, options);
+    }
+  </script>
 
 
 {% endblock %}

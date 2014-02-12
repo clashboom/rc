@@ -1,31 +1,47 @@
-% extends "base.html" %}
-
-{# END OF VARIABLES #}
+{% extends "base.html" %}
 
 {# MACROS #}
 {% macro listSales(sales) -%}
 {% for sale in sales %}
-  {% if sale.eka == eka %}
-    {% set product = sale.product.get() %}
-    {% set price = product.priceOut %}
-    {% set quantity = sale.quantity %}
-    {% set ean = sale.product.id() %}
-    <tr>
-      <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
-      <td class="description">{{ product.description }}</td>
-      <td class="price">{{ price }}</td>
-      <td class="quantity">{{ quantity }}</td>
-      <td class="total">{{ quantity * price }}</td>
-      <td class="eka">{{ sale.eka }}</td>
-    </tr>
-  {% endif %}
+  {% set product = sale.product.get() %}
+  {% set price = product.priceOut %}
+  {% set quantity = sale.quantity %}
+  {% set ean = sale.product.id() %}
+  <tr>
+    <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
+    <td class="description">{{ product.description }}</td>
+    <td class="price">{{ price }}</td>
+    <td class="quantity">{{ quantity }}</td>
+    <td class="total">{{ quantity * price }}</td>
+  </tr>
 {% endfor %}
 {%- endmacro %}
 
-  <table class="table table-striped col-xs-6">
+
+{% macro listPurchases(purchases) -%}
+{% for purchase in purchases %}
+  {% set product = purchase.product.get() %}
+  {% set price = purchase.price %}
+  {% set quantity = purchase.quantity %}
+  {% set ean = purchase.product.id() %}
+  <tr>
+    <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
+    <td class="description">{{ product.description }}</td>
+    <td class="price">{{ price }}</td>
+    <td class="quantity">{{ quantity }}</td>
+    <td class="total">{{ quantity * price }}</td>
+  </tr>
+{% endfor %}
+{%- endmacro %}
+
+{% macro generateTable(eka, title) -%}
+<div class="">
+  <table class="table table-striped">
     <caption>
-      <input id="" class="search fuzzy-search" type="search"
-      name="search" autofocus>
+      <span class="label label-info">{{ title }}</span>
+      <span class="glyphicon glyphicon-search"></span>
+      <input id="" class="search fuzzy-search col-xs-12" type="search"
+      name="search">
     </caption>
     <thead>
       <tr>
@@ -37,57 +53,7 @@
       </tr>
     </thead>
     <tbody class="list">
-      {{ rows }}
-      <tr>
-        <td class="pagination"></td>
-      </tr>
-    </tbody>
-  </table>
-
-{% macro generateRow(title, eka) -%}
-<div id="list-{{ eka.idn }}" class="row">
-  <h2>{{ title }}</h2>
-
-  {{ generateTable(listSales(eka.sales)) }}
-  {{ generateTable(listPurchases(eka.purchases)) }}
-
-</div>
-{% endmacro -%}
-
-{% macro purchasesByEka(eka) -%}
-<div id="list-purchases-{{ eka }}">
-  <h2>Iepirktās preces: {{ purchaseTotal }} Ls</h2>
-  <table class="table table-striped">
-    <caption>
-      <input id="" class="search fuzzy-search" type="search"
-      name="search" autofocus>
-    </caption>
-    <thead>
-      <tr>
-        <th class="sort" data-sort="ean">kods</th>
-        <th class="sort" data-sort="description">apraksts</th>
-        <th class="sort" data-sort="price">cena</th>
-        <th class="sort" data-sort="quantity">daudzums</th>
-        <th class="sort" data-sort="total">summa</th>
-      </tr>
-    </thead>
-    <tbody class="list">
-      {% for purchase in purchases %}
-        {% if purchase.product.get().eka == eka %}
-          {% set product = purchase.product.get() %}
-          {% set price = purchase.price %}
-          {% set quantity = purchase.quantity %}
-          {% set ean = purchase.product.id() %}
-          <tr>
-            <td class="ean"><a href="/prece?ean={{ ean }}">{{ ean }}</a> </td>
-            <td class="description">{{ product.description }}</td>
-            <td class="price">{{ price }}</td>
-            <td class="quantity">{{ quantity }}</td>
-            <td class="total">{{ quantity * price }}</td>
-            <td class="eka">{{ product.eka }}</td>
-          </tr>
-        {% endif %}
-      {% endfor %}
+      {{ caller(eka) }}
       <tr>
         <td class="pagination"></td>
       </tr>
@@ -96,124 +62,111 @@
 </div>
 {%- endmacro %}
 
+{% macro generateRow(title, eka) -%}
+<div id="tab-{{ eka.idn }}" class="tab-pane fade">
+  <span class="label label-default pull-right">{{ title }}</span>
+
+  {% if eka.sales %}
+    {% call(eka) generateTable(eka, 'Pārdotās preces') %}
+      {{ listSales(eka.sales) }}
+    {% endcall %}
+  {% elif eka.purchases %}
+      <span class="alert alert-warning">Preču pārdošana nav reģistrēta.</span>
+  {% endif %}
+
+  {% if eka.purchases  %}
+    {% call(eka) generateTable(eka, 'Iepirktās preces') %}
+      {{ listPurchases(eka.purchases) }}
+    {% endcall %}
+  {% elif eka.sales %}
+      <span class="alert alert-warning">Preču iepirkumi nav reģistrēti.</span>
+  {% endif %}
+
+  {% if not (eka.sales or eka.purchases) %}
+    <span class="alert alert-warning">Preču kustība nav reģistrēta.</span>
+  {% endif %}
+
+</div>
+{% endmacro -%}
+
 {# END OF MACROS #}
 
 {% block main %}
-            <div class="header">
-              <h1>
-                <a href="/">Sākums </a>&gt;
-                Perioda pārskats</h1>
-            </div>
+  <div class="info-row">
+    <ol class="breadcrumb">
+      <li><a href="/">Sākums</a></li>
+      <li class="active">Perioda pārskats</li>
+    </ol>
+  </div>
 
-            <div class="jumbotron">
-               <div>
-                <a href="?periods=sodien"><span class="date">Šodien</span></a> |
-                <a href="?periods=vakar"><span class="date">Vakar</span></a> |
-                <a href="?periods=sonedel"><span class="date">Šonedēļ</span></a> |
-                <a href="?periods=somenes"><span class="date">Šomēnes</span></a> |
-                <a href="?periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
-                <a href="?periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
+  <div class="period-menu">
 
-              <div class="row">
-                <div class="col-md-3" style="text-align: right">
-                  Periods:
-                </div>
+    <ol class="period-list">
+      <li><a href="?periods=sodien"><span class="date">Šodien</span></a></li>
+      <li><a href="?periods=vakar"><span class="date">Vakar</span></a></li>
+      <li><a href="?periods=sonedel"><span class="date">Šonedēļ</span></a></li>
+      <li><a href="?periods=somenes"><span class="date">Šomēnes</span></a></li>
+      <li><a href="?periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a></li>
+      <li><a href="?periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a></li>
+    </ol>
 
-                <form action="" method="GET">
-                  <input name="ean" type="text" class="hidden" value="{{ ean }}" />
-                  <div class="form-group col-md-3">
-                    <div class='input-group date' id='datetimepicker8'>
-                      <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
+    <form action="" method="GET">
+      <input name="ean" type="text" class="hidden" value="{{ ean }}" />
+      <div class="form-group col-xs-3 col-xs-offset-2">
+        <div class='input-group date' id='datetimepicker8'>
+          <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+          <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
 
-                  <div class="form-group col-md-3">
-                    <div class='input-group date' id='datetimepicker9'>
-                      <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-                      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="col-md-1">
-                    <input type="submit" class="btn" value="Atlasīt">
-                  </div>
-                </form>
-              </div>
-            </div>
+      <div class="form-group col-md-3">
+        <div class='input-group date' id='datetimepicker9'>
+          <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+          <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
+      <div class="col-md-1">
+        <input type="submit" class="btn btn-default" value="Atlasīt">
+      </div>
+    </form>
+  </div>
+  <div class="container">
+    {% if not (no or lidz) %}
+    <span class="alert alert-warning">Izvēlieties periodu.</span>
+    {% else %}
+      No {{ no if no else 'laika sākuma' }}
+      lidz {{ lidz if lidz else 'laika galam' }}
+      </div>
 
-            <div class="result">
-              {% if not (no or lidz) %}
-                <span class="alert alert-info">Izvēlieties periodu.</span>
-              {% else %}
-                <div>Pārskata periods: No
-                  {% if no %}
-                  {{ no }}
-                  {% else %}
-                  laika sākuma
-                  {% endif %}
-                  līdz
-                  {% if lidz %}
-                  {{ lidz }}
-                  {% else %}
-                  laika galam.
-                  {% endif %}
-                </div>
+      <hr>
 
-                {% if sales %}
-                  {% for eka in ekas %}
-                    <div class="col-xs-6">
-                      {{ salesByEka(eka) }}
-                    </div>
-                  {% endfor %}
-                {% endif %}
+      <div class="alert-info">
+        Placeholder for additional overview stats.
+      </div>
 
-                {% if purchases %}
-                  {% for eka in ekas %}
-                    <div class="col-xs-6">
-                      {{ salesByEka(eka) }}
-                    </div>
-                  {% endfor %}
-                {% elif not (purchases or sales) %}
-                  <span class="alert alert-warning">Nav datu.</span>
-                {% endif%}
-              {% endif%}
+      <div class="result">
+        <hr>
 
-            </div>
-          </div>
-
-        {# <script src="https://www.google.com/jsapi" type="text/javascript"></script> #}
-        {# <script type="text/javascript"> #}
-
-        {#   // Load the Visualization API, core charts, table and geo charts. #}
-        {#   // is included in the corechart package. #}
-        {#   google.load('visualization', '1.0', #}
-        {#       {'packages':['corechart']}); #}
-
-        {#   google.setOnLoadCallback(drawChart); #}
-
-        {#   function drawChart() { #}
-        {#     var json_chart = new google.visualization.ScatterChart(document.getElementById('chart_transactions')); #}
-        {#     var json_data = new google.visualization.DataTable({{ t | safe }}, 0.6); #}
-
-        {#     console.log(json_chart); #}
-        {#     console.log(json_data); #}
-
-        {#     var options = { #}
-        {#                   width: 1000, #}
-        {#                   height: 500, #}
-        {#                   title: '', #}
-        {#                   legend: {position: 'bottom'}, #}
-        {#                   hAxis: {title: 'Laiks (GMT)', titleTextStyle: {color: #}
-        {#                     'black'}}, #}
-
-        {#         }; #}
-
-
-        {#     json_chart.draw(json_data, options); #}
-        {#   } #}
-        {# </script> #}
-
+        <ul id="MyTab" class="nav nav-tabs">
+          <li><a href="#tab-0063" data-toggle="tab">Viesturs</a></li>
+          <li><a href="#tab-0040" data-toggle="tab">Ilga</a></li>
+          <li><a href="#tab-0000" data-toggle="tab">Sigita</a></li>
+          <li><a href="#tab-0084" data-toggle="tab">Daiga</a></li>
+          <li><a href="#tab-0704" data-toggle="tab">Ivars</a></li>
+          <li><a href="#tab-1360" data-toggle="tab">Inga</a></li>
+        </ul>
+        <div id="MyTabContent" class="tab-content">
+          {% if sales or purchases %}
+          {% for eka in ekas %}
+          {{ generateRow(eka.name + ' kase', eka) }}
+          {% endfor %}
+          {% elif not (purchases or sales) %}
+          <span class="alert alert-warning">Nav datu.</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
 
 {% endblock %}

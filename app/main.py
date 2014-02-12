@@ -172,7 +172,7 @@ class Utilities(Handler):
                    '0040': 'Ilga',
                    '0000': 'Sigita',
                    '0084': 'Daiga',
-                   '0704': 'Ivars',
+                   '0704': 'Ivara',
                    '1360': 'Inga'}
         return ekaDict[eka]
 
@@ -312,8 +312,7 @@ class ProductViewer(Handler):
 
 
 class Eka(Handler):
-    #TODO: populate them slots for optimization
-    # __slots__ = ['name', 'idn', 'sales', 'purchases']
+    __slots__ = ['name', 'idn', 'sales', 'purchases']
 
     def __init__(self, name, idn, sales=False, purchases=False):
         self.name = name
@@ -322,6 +321,7 @@ class Eka(Handler):
             self.sales = filter(lambda x: x.eka == self.idn, sales)
         if purchases:
             self.purchases = filter(lambda x: x.eka == self.idn, purchases)
+            logging.error(self.purchases)
 
 
 class Overview(Handler):
@@ -337,7 +337,7 @@ class Overview(Handler):
         ilga = Eka('Ilgas', '0040', sales, purchases)
         sigita = Eka('Sigitas', '0000', sales, purchases)
         daiga = Eka('Daigas', '0084', sales, purchases)
-        ivars = Eka('Ivars', '0704', sales, purchases)
+        ivars = Eka('Ivara', '0704', sales, purchases)
         inga = Eka('Ingas', '1360', sales, purchases)
         noneka = Eka('??', None, sales=False, purchases=purchases)
         logging.info(noneka)
@@ -389,7 +389,7 @@ class PopulateDB(Handler):
                  }
             purchases.append(q)
 
-        for purchase in purchases:
+        for purchase in purchases[:20]:
             Purchase.Process(**purchase)
 
         sales = []
@@ -411,6 +411,9 @@ class PopulateDB(Handler):
 
         for sale in sales:
             Sale.Process(**sale)
+
+        for purchase in purchases[20:]:
+            Purchase.Process(**purchase)
 
         self.redirect('/')
 

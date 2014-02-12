@@ -15369,24 +15369,24 @@ a.thumbnail.active {
 }
 
 @-webkit-keyframes progress-bar-stripes {
-  /* line 11, ../bower_components/sass-bootstrap/lib/_progress-bars.scss */
+  /* line 11, ../../bower_components/sass-bootstrap/lib/_progress-bars.scss */
   from {
     background-position: 40px 0;
   }
 
-  /* line 12, ../bower_components/sass-bootstrap/lib/_progress-bars.scss */
+  /* line 12, ../../bower_components/sass-bootstrap/lib/_progress-bars.scss */
   to {
     background-position: 0 0;
   }
 }
 
 @keyframes progress-bar-stripes {
-  /* line 29, ../bower_components/sass-bootstrap/lib/_progress-bars.scss */
+  /* line 29, ../../bower_components/sass-bootstrap/lib/_progress-bars.scss */
   from {
     background-position: 40px 0;
   }
 
-  /* line 30, ../bower_components/sass-bootstrap/lib/_progress-bars.scss */
+  /* line 30, ../../bower_components/sass-bootstrap/lib/_progress-bars.scss */
   to {
     background-position: 0 0;
   }
@@ -18335,7 +18335,13 @@ button.close {
 }
 
 .clearfix:before,
-.clearfix:after {
+.main-menu:before,
+.period-menu:before,
+.period-list:before,
+.clearfix:after,
+.main-menu:after,
+.period-menu:after,
+.period-list:after {
   content: " ";
   /* 1 */
   display: table;
@@ -18352,7 +18358,10 @@ button.close {
   }
 }
 
-.clearfix:after {
+.clearfix:after,
+.main-menu:after,
+.period-menu:after,
+.period-list:after {
   clear: both;
 }
 
@@ -19838,7 +19847,7 @@ td.visible-print {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
@@ -19857,7 +19866,7 @@ td.visible-print {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
@@ -19870,15 +19879,13 @@ body {
   padding-bottom: 20px;
 }
 
-/* Everything but the jumbotron gets side spacing for mobile first views */
-
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000321;
+    font-family: \0000320;
   }
 }
 
@@ -19893,11 +19900,11 @@ body {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000327;
+    font-family: \0000326;
   }
 }
 
@@ -19908,11 +19915,11 @@ body {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000331;
+    font-family: \0000330;
   }
 }
 
@@ -19927,11 +19934,11 @@ body {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000340;
+    font-family: \0000339;
   }
 }
 
@@ -19943,78 +19950,16 @@ body {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000346;
+    font-family: \0000345;
   }
 }
 
 .container-narrow > hr {
   margin: 30px 0;
-}
-
-/* Main marketing message and sign up button */
-
-@media -sass-debug-info {
-  filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
-  }
-
-  line {
-    font-family: \0000351;
-  }
-}
-
-.jumbotron {
-  text-align: center;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-@media -sass-debug-info {
-  filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
-  }
-
-  line {
-    font-family: \0000354;
-  }
-}
-
-.jumbotron .btn {
-  font-size: 21px;
-  padding: 14px 24px;
-}
-
-/* Supporting marketing content */
-
-@media -sass-debug-info {
-  filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
-  }
-
-  line {
-    font-family: \0000361;
-  }
-}
-
-.marketing {
-  margin: 40px 0;
-}
-
-@media -sass-debug-info {
-  filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
-  }
-
-  line {
-    font-family: \0000363;
-  }
-}
-
-.marketing p + h4 {
-  margin-top: 28px;
 }
 
 /* Responsive: Portrait tablets and up */
@@ -20024,11 +19969,11 @@ body {
 
 @media -sass-debug-info {
     filename {
-      font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+      font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
     }
 
     line {
-      font-family: \0000376;
+      font-family: \0000357;
     }
 }
 
@@ -20043,11 +19988,11 @@ body {
 
 @media -sass-debug-info {
     filename {
-      font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+      font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
     }
 
     line {
-      font-family: \0000382;
+      font-family: \0000363;
     }
 }
 
@@ -20059,11 +20004,11 @@ body {
 
 @media -sass-debug-info {
     filename {
-      font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+      font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
     }
 
     line {
-      font-family: \0000387;
+      font-family: \0000368;
     }
 }
 
@@ -20074,11 +20019,11 @@ body {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000392;
+    font-family: \0000373;
   }
 }
 
@@ -20088,14 +20033,152 @@ body {
 
 @media -sass-debug-info {
   filename {
-    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/styles\/main\.scss;
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
   }
 
   line {
-    font-family: \0000396;
+    font-family: \0000377;
   }
 }
 
 .form-control {
-  height: 45px;
+  height: 33px;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \0000383;
+  }
+}
+
+.main-menu,
+.period-menu,
+.period-list {
+  padding-bottom: 45px;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \0000389;
+  }
+}
+
+.main-menu-list li,
+.period-list li {
+  width: 12.5%;
+  float: left;
+  height: 115px;
+  line-height: 1.4;
+  text-align: center;
+  border: 1px solid #fff;
+  background-color: #f9f9f9;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \0000399;
+  }
+}
+
+.main-menu ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \00003105;
+  }
+}
+
+.main-menu-list .description {
+  display: block;
+  text-align: center;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \00003113;
+  }
+}
+
+.main-menu-list a,
+.period-list a {
+  width: 100%;
+  height: 100%;
+  display: block;
+  color: #222;
+  padding: 20px;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \00003118;
+  }
+}
+
+.main-menu-list a:hover,
+.period-list a:hover {
+  color: #fff;
+  background: #428bca;
+  text-decoration: none;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \00003126;
+  }
+}
+
+.main-menu-list .glyphicon {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+@media -sass-debug-info {
+  filename {
+    font-family: file\:\/\/\/home\/clash\/envs\/rc\/webapp\/app\/static\/styles\/main\.scss;
+  }
+
+  line {
+    font-family: \00003132;
+  }
+}
+
+.period-list li {
+  width: 16.65%;
+  height: 65px;
 }

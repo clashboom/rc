@@ -50,6 +50,19 @@ require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'datepicker'],
 		var salesList = new List('list-sales', options);
 
 
+    // Tabs
+
+    // $("#tab-0063").addClass("active in");
+    // $('#myTab a[href="#tab-0063"]').parent().addClass("active");
+
+    $('#myTab a[href="#tab-0063').tab('show');
+    $('#myTab a[href="#tab-0040"]').tab('show');
+    $('#myTab a[href="#tab-0000"]').tab('show');
+    $('#myTab a[href="#tab-0084"]').tab('show');
+    $('#myTab a[href="#tab-0704"]').tab('show');
+    $('#myTab a[href="#tab-1360"]').tab('show');
+
+
     // Bootstrap Datetimepicker
     $('#datetimepicker8').datetimepicker({ language: 'lv' });
     $('#datetimepicker9').datetimepicker({ language: 'lv' });
