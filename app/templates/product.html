@@ -8,13 +8,12 @@
   </div>
 
   <div class="container">
-    <div class="row padded">
     <form action="" method="GET">
-      <div class="col-lg-1">
-        <label for="ean" class="label label-info pull-right">Svītru kods:</label>
-      </div>
+      {# <div class="col-lg-1"> #}
+      {#   <label for="ean" class="label label-info pull-right">Svītru kods:</label> #}
+      {# </div> #}
 
-      <div class="input-group col-lg-11 pull-right">
+      <div class="input-group col-xs-12 pull-right">
         <input id="ean" class="form-control" name="ean" type="text" placeholder="1234567"
         {% if ean %}
         value="{{ ean }}"
@@ -26,6 +25,8 @@
       </div><!-- /input-group -->
     </form>
   </div>
+  <hr>
+
 
 
     <div class="result">
@@ -53,42 +54,37 @@
       </tbody>
     </table>
 
+  <div class="period-menu">
+    <ol class="period-list">
+        <li><a href="?ean={{ ean }}&periods=sodien"><span class="date">Šodien</span></a></li>
+        <li><a href="?ean={{ ean }}&periods=vakar"><span class="date">Vakar</span></a></li>
+        <li><a href="?ean={{ ean }}&periods=sonedel"><span class="date">Šonedēļ</span></a></li>
+        <li><a href="?ean={{ ean }}&periods=somenes"><span class="date">Šomēnes</span></a></li>
+        <li><a href="?ean={{ ean }}&periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a></li>
+        <li><a href="?ean={{ ean }}&periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a></li>
+    </ol>
 
-    <div>
-      <a href="?ean={{ ean }}&periods=sodien"><span class="date">Šodien</span></a> |
-      <a href="?ean={{ ean }}&periods=vakar"><span class="date">Vakar</span></a> |
-      <a href="?ean={{ ean }}&periods=sonedel"><span class="date">Šonedēļ</span></a> |
-      <a href="?ean={{ ean }}&periods=somenes"><span class="date">Šomēnes</span></a> |
-      <a href="?ean={{ ean }}&periods=ieprnedela"><span class="date">Iepriekšējā nedēļa</span></a> |
-      <a href="?ean={{ ean }}&periods=ieprmenesis"><span class="date">Iepriekšējais mēnesis</span></a>
-
-    <div class="row">
-      <div class="col-md-3" style="text-align: right">
-        Periods:
+    <form action="" method="GET">
+      <input name="ean" type="text" class="hidden" value="{{ ean }}" />
+      <div class="form-group col-xs-3 col-xs-offset-2">
+        <div class='input-group date' id='datetimepicker8'>
+          <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+          <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
       </div>
 
-      <form action="" method="GET">
-        <input name="ean" type="text" class="hidden" value="{{ ean }}" />
-        <div class="form-group col-md-3">
-          <div class='input-group date' id='datetimepicker8'>
-            <input name="no" placeholder="Perioda sākums" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-            </span>
-          </div>
+      <div class="form-group col-md-3">
+        <div class='input-group date' id='datetimepicker9'>
+          <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
+          <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+          </span>
         </div>
-
-        <div class="form-group col-md-3">
-          <div class='input-group date' id='datetimepicker9'>
-            <input name="lidz" placeholder="Perioda beigas" type='text' class="form-control" data-format="YYYY/MM/DD HH:MM:SS"/>
-            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-            </span>
-          </div>
-        </div>
-        <div class="col-md-1">
-          <input type="submit" class="btn" value="Atlasīt">
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="col-md-1">
+        <input type="submit" class="btn btn-default" value="Atlasīt">
+      </div>
+    </form>
   </div>
 
     {% else %}
@@ -99,7 +95,7 @@
 
       {% if t %}
 
-      <div>Pārskata periods: No
+      <div class="well">Pārskata periods: No
         {% if no %}
           {{ no }}
         {% else %}
@@ -115,7 +111,7 @@
 
         <div id="chart_transactions"></div>
         <hr>
-        <div class="summary text-left">
+        <div class="well well-lg text-left">
           <strong>Perioda ietvaros:</strong>
           <br>
           Pārdotais daudzums: {{ countOut }}

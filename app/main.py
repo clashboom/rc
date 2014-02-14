@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 # Let's roll
 import jinja2
 import logging
@@ -32,7 +34,6 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        logging.error('OHAI FROM MAIN PAGE!')
         self.render('menu.html')
 
 
@@ -168,12 +169,13 @@ class SalesHandler(Handler):
 class Utilities(Handler):
     @staticmethod
     def translateEka(eka):
-        ekaDict = {'0063': 'Viesturs',
-                   '0040': 'Ilga',
-                   '0000': 'Sigita',
-                   '0084': 'Daiga',
-                   '0704': 'Ivara',
-                   '1360': 'Inga'}
+        ekaDict = {'0063': u'Viesturs',
+                   '0040': u'Ilga',
+                   '0000': u'Sigita',
+                   '0084': u'Daiga',
+                   '0704': u'Ivara',
+                   '1360': u'Inga',
+                   None: u'Preces, kam nav piešķirta kase'}
         return ekaDict[eka]
 
     @staticmethod
@@ -312,16 +314,20 @@ class ProductViewer(Handler):
 
 
 class Eka(Handler):
-    __slots__ = ['name', 'idn', 'sales', 'purchases']
+    __slots__ = ['name', 'idn', 'sales', 'salesTotal', 'purchases',
+                 'purchasesTotal']
 
     def __init__(self, name, idn, sales=False, purchases=False):
         self.name = name
         self.idn = idn
         if sales:
             self.sales = filter(lambda x: x.eka == self.idn, sales)
+            self.salesTotal = sum([sale.quantity * sale.price
+                                   for sale in self.sales])
         if purchases:
             self.purchases = filter(lambda x: x.eka == self.idn, purchases)
-            logging.error(self.purchases)
+            self.purchasesTotal = sum([purchase.quantity * purchase.price
+                                       for purchase in self.purchases])
 
 
 class Overview(Handler):
@@ -333,27 +339,28 @@ class Overview(Handler):
         no, lidz = Utilities.translateDates(no=no, lidz=lidz, periods=periods)
         purchases, sales = Utilities.getTransactions(no, lidz)
 
-        viesturs = Eka('Viestura', '0063', sales, purchases)
-        ilga = Eka('Ilgas', '0040', sales, purchases)
-        sigita = Eka('Sigitas', '0000', sales, purchases)
-        daiga = Eka('Daigas', '0084', sales, purchases)
-        ivars = Eka('Ivara', '0704', sales, purchases)
-        inga = Eka('Ingas', '1360', sales, purchases)
-        noneka = Eka('??', None, sales=False, purchases=purchases)
+        viesturs = Eka(u'Viestura', '0063', sales, purchases)
+        ilga = Eka(u'Ilgas', '0040', sales, purchases)
+        sigita = Eka(u'Sigitas', '0000', sales, purchases)
+        daiga = Eka(u'Daigas', '0084', sales, purchases)
+        ivars = Eka(u'Ivara', '0704', sales, purchases)
+        inga = Eka(u'Ingas', '1360', sales, purchases)
+        noneka = Eka(u'Preces, kas nav pieškirtas kasei', None, sales=sales,
+                     purchases=purchases)
         logging.info(noneka)
 
-        ekas = [viesturs, ilga, sigita, daiga, ivars, inga]
+        ekas = [viesturs, ilga, sigita, daiga, ivars, inga, noneka]
 
         params = {'no': no,
                   'lidz': lidz,
                   'purchases': purchases,
                   'purchaseCount': len(purchases),
-                  'purchaseTotal': sum([purchase.quantity *
+                  'purchasesTotal': sum([purchase.quantity *
                                         purchase.price
                                         for purchase in purchases]),
                   'saleCount': len(sales),
-                  'saleTotal': sum([sale.quantity *
-                                    sale.product.get().priceOut
+                  'salesTotal': sum([sale.quantity *
+                                    sale.price
                                     for sale in sales]),
                   'sales': sales,
                   'purchases': purchases,

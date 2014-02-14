@@ -29,11 +29,11 @@ require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'datepicker'],
 
 		// List.js
 		var fuzzyOptions = {
-			searchClass: 'fuzzy-search',
-			location: 0,
 			distance: 100,
-			threshold: 0.4,
-			multiSearch: true
+			location: 0,
+			multiSearch: true,
+			searchClass: 'fuzzy-search',
+			threshold: 0.4
 		};
 
 		var options = {
@@ -41,13 +41,26 @@ require(['domReady', 'listJs', 'jquery', 'fuzzySearch', 'datepicker'],
       listClass: "list",
       searchClass: "search",
       sortClass: "sort",
-      indexAsync: false,
-      // page: 10,
+      indexAsync: true,
+      page: 10000,
 			plugins: [ fuzzySearch() ]
 		};
 
-		var purchaseList = new List('list-purchases', options);
-		var salesList = new List('list-sales', options);
+
+    var ViestursOut = new List('0063-sales', options)
+    var ViestursIn = new List('0063-purchases', options)
+    var IlgaOut = new List('0040-sales', options)
+    var IlgaIn = new List('0040-purchases', options)
+    var SigitaOut = new List('0000-sales', options)
+    var SigitaIn = new List('0000-purchases', options)
+    var DaigaOut = new List('0084-sales', options)
+    var DaigaIn = new List('0084-purchases', options)
+    var IvarsOut = new List('0704-sales', options)
+    var IvarsIn = new List('0704-purchases', options)
+    var IngaOut = new List('1360-sales', options)
+    var IngaIn = new List('1360-purchases', options)
+    var NonekaOut = new List('None-sales', options)
+    var NonekaIn = new List('None-purchases', options)
 
 
     // Tabs

@@ -4,7 +4,7 @@
 {% macro listSales(sales) -%}
 {% for sale in sales %}
   {% set product = sale.product.get() %}
-  {% set price = product.priceOut %}
+  {% set price = sale.price %}
   {% set quantity = sale.quantity %}
   {% set ean = sale.product.id() %}
   <tr>
@@ -16,7 +16,6 @@
   </tr>
 {% endfor %}
 {%- endmacro %}
-
 
 {% macro listPurchases(purchases) -%}
 {% for purchase in purchases %}
@@ -40,13 +39,14 @@
     <caption>
       <span class="label label-info">{{ title }}</span>
       <span class="glyphicon glyphicon-search"></span>
-      <input id="" class="search fuzzy-search col-xs-12" type="search"
-      name="search">
+      <div class="input-group col-xs-12 pull-right">
+        <input id="ean" class="form-control search fuzzy-search" name="ean" type="text" placeholder="Preces nosaukums vai kods">
+      </div><!-- /input-group -->
     </caption>
     <thead>
       <tr>
         <th class="sort" data-sort="ean">Kods</th>
-        <th class="sort" data-sort="description">Apraksts</th>
+        <th class="sort" data-sort="description">Nosaukums</th>
         <th class="sort" data-sort="price">Cena</th>
         <th class="sort" data-sort="quantity">Daudzums</th>
         <th class="sort" data-sort="total">Summa</th>
@@ -63,21 +63,27 @@
 {%- endmacro %}
 
 {% macro generateRow(title, eka) -%}
-<div id="tab-{{ eka.idn }}" class="tab-pane fade">
-  <span class="label label-default pull-right">{{ title }}</span>
-
+<div id="tab-{{ eka.idn }}" class="tab-pane fade panel">
+    <br>
+    <span class="well well-sm">Ieņēmumi {{ eka.salesTotal }} &euro;</span>
+    <span class="well well-sm">Izdevumi {{ eka.purchasesTotal }} &euro;</span>
+    <hr>
   {% if eka.sales %}
+  <div id="{{ eka.idn }}-sales">
     {% call(eka) generateTable(eka, 'Pārdotās preces') %}
       {{ listSales(eka.sales) }}
     {% endcall %}
+  </div>
   {% elif eka.purchases %}
       <span class="alert alert-warning">Preču pārdošana nav reģistrēta.</span>
   {% endif %}
 
   {% if eka.purchases  %}
+  <div id="{{ eka.idn }}-purchases">
     {% call(eka) generateTable(eka, 'Iepirktās preces') %}
       {{ listPurchases(eka.purchases) }}
     {% endcall %}
+  </div>
   {% elif eka.sales %}
       <span class="alert alert-warning">Preču iepirkumi nav reģistrēti.</span>
   {% endif %}
@@ -136,14 +142,17 @@
     {% if not (no or lidz) %}
     <span class="alert alert-warning">Izvēlieties periodu.</span>
     {% else %}
-      No {{ no if no else 'laika sākuma' }}
-      lidz {{ lidz if lidz else 'laika galam' }}
-      </div>
 
       <hr>
 
-      <div class="alert-info">
-        Placeholder for additional overview stats.
+      <div class="well well-lg">
+        Periods:
+        No {{ no if no else 'laika sākuma' }}
+        lidz {{ lidz if lidz else 'laika galam' }} <br>
+
+        Perioda ietvaros: Kopā pārdots par summu: {{ salesTotal }} &euro; |
+        Kopā iepirkts par summu: {{ purchasesTotal }} &euro;
+
       </div>
 
       <div class="result">
@@ -156,6 +165,7 @@
           <li><a href="#tab-0084" data-toggle="tab">Daiga</a></li>
           <li><a href="#tab-0704" data-toggle="tab">Ivars</a></li>
           <li><a href="#tab-1360" data-toggle="tab">Inga</a></li>
+          <li><a href="#tab-None" data-toggle="tab">Preces, kam nav piešķirta kase </a></li>
         </ul>
         <div id="MyTabContent" class="tab-content">
           {% if sales or purchases %}
@@ -168,5 +178,5 @@
         </div>
       </div>
     {% endif %}
-
+  </div>
 {% endblock %}
