@@ -1,17 +1,17 @@
  require.config({
-    paths: {
-			jquery: '../../bower_components/jquery/jquery',
-			listJs: '../../bower_components/listjs/dist/list',
-			fuzzySearch: '../../bower_components/list.fuzzysearch.js/dist/list.fuzzysearch',
-      // listPagination: '../../bower_components/list.pagination.js/dist/list.pagination',
-      datepicker: '../../bower_components/bootstrap3-datetimepicker/build/js/bootstrap-datetimepicker.min',
-      moment: '../../bower_components/moment/moment'
-		},
+     paths: {
+         jquery: '/bower_components/jquery/jquery',
+         listJs: '/bower_components/listjs/dist/list',
+         fuzzySearch: '/bower_components/list.fuzzysearch.js/dist/list.fuzzysearch',
+         // listPagination: '/bower_components/list.pagination.js/dist/list.pagination',
+         datepicker: '/bower_components/bootstrap3-datetimepicker/build/js/bootstrap-datetimepicker.min',
+         moment: '/bower_components/moment/moment'
+     },
 
 		shim: {
-			jquery: {
-				exports: 'jquery'
-			},
+			// jquery: {
+			// 	exports: 'jquery'
+			// },
 			fuzzySearch: {
 				deps: ['listJs']
 			},

@@ -49,7 +49,7 @@ class Transaction(ndb.Model):
     product = ndb.KeyProperty('k', kind='Product')
     quantity = ndb.FloatProperty('qt', required=True, default=1)
     price = ndb.FloatProperty('ppi', required=True)
-    time = ndb.DateTimeProperty()
+    time = ndb.DateTimeProperty(auto_now_add=True)
     eka = ndb.StringProperty()
 
     @classmethod
@@ -91,31 +91,31 @@ class Transaction(ndb.Model):
 
 class Purchase(Transaction):
     @staticmethod
-    def Process(ean, price, quantity, description=None, time=None):
+    def Process(ean, priceIn, priceOut, quantity, description=None):
         k = ndb.Key('Product', ean)
         product = k.get()
 
         if product:
 
-            if description:
+            if description and len(description) > 0:
                 product.description = description
 
-            product.priceIn = price
-            product.priceOut = price * 1.30
+            product.priceIn = priceIn
+            product.priceOut = priceOut
             product.inStock += quantity
 
         else:
 
             product = Product(id=ean,
                               description=description,
-                              priceIn=price,
-                              priceOut=price * 1.30,
+                              priceIn=priceIn,
+                              priceOut=priceOut,
                               inStock=quantity)
         product.put()
 
         purchase = Purchase(product=ndb.Key('Product', ean),
                             quantity=quantity,
-                            price=price, time=time, eka=product.eka)
+                            price=priceIn, eka=product.eka)
         purchase.put()
 
 
@@ -146,22 +146,27 @@ class Sale(Transaction):
 
 
 class PurchaseHandler(Handler):
-    #TODO: change this to POST
     def get(self):
+        self.render("addProduct.html")
+
+    def post(self):
         ean = self.request.get('ean')
-        quantity = float(random.randint(0, 10))
-        price = float(self.request.get('p'))
-        description = self.request.get('desc')
-        Purchase.Process(ean=ean, quantity=quantity, price=price,
-                         description=description)
+        description = self.request.get('description')
+        quantity = float(self.request.get('quantity'))
+        priceIn = float(self.request.get('priceIn'))
+        priceOut = float(self.request.get('priceOut'))
+        Purchase.Process(ean=ean, quantity=quantity, priceIn=priceIn,
+                         priceOut=priceOut, description=description)
         self.redirect('/')
 
 
 class SalesHandler(Handler):
-    #TODO: change this to POST
     def get(self):
+        self.render("removeProduct.html")
+
+    def post(self):
         ean = self.request.get('ean')
-        quantity = float(random.randint(0, 10))
+        quantity = float(self.request.get('quantity'))
         Sale.Process(ean=ean, quantity=quantity)
         self.redirect('/')
 
@@ -430,8 +435,8 @@ class PopulateDB(Handler):
 
 
 app = webapp2.WSGIApplication([
-    ('/buy', PurchaseHandler),
-    ('/sell', SalesHandler),
+    ('/prece/pievienot', PurchaseHandler),
+    ('/prece/nonemt', SalesHandler),
     ('/parskats', Overview),
     ('/prece', ProductViewer),
     ('/db', PopulateDB),
