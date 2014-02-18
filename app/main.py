@@ -282,6 +282,10 @@ class ProductViewer(Handler):
             key = ndb.Key('Product', ean)
             product = key.get()
 
+            if not product:
+                self.redirect('/prece')
+                return
+
             periods = self.request.get('periods')
             no = self.request.get('no')
             lidz = self.request.get('lidz')
