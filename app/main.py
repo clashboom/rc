@@ -4,10 +4,10 @@
 import jinja2
 import logging
 import os
-import random
 import webapp2
 
 from google.appengine.ext import ndb
+from google.appengine.api import memcache
 from datetime import datetime, timedelta
 from libs import gviz_api
 
@@ -43,6 +43,16 @@ class Product(ndb.Model):
     priceOut = ndb.FloatProperty('po', required=True)
     inStock = ndb.FloatProperty('qt', required=True, default=0)
     eka = ndb.StringProperty('eka')
+
+    @classmethod
+    def lookupByKey(cls, id):
+        cached_p = memcache.get(id)
+        if cached_p is not None:
+            return cached_p
+        else:
+            p = cls.get_by_id(id)
+            memcache.add(id, p)
+            return p
 
 
 class Transaction(ndb.Model):
@@ -121,7 +131,7 @@ class Purchase(Transaction):
 
 class Sale(Transaction):
     @staticmethod
-    def Process(ean, quantity, time, eka):
+    def Process(ean, quantity, eka):
         k = ndb.Key('Product', ean)
         product = k.get()
 
@@ -131,7 +141,7 @@ class Sale(Transaction):
             price = product.priceOut
             product.inStock -= quantity
             product.put()
-            s = Sale(product=k, quantity=quantity, price=price, time=time,
+            s = Sale(product=k, quantity=quantity, price=price,
                      eka=eka)
             if not product.eka:
                 product.eka = eka
@@ -167,8 +177,13 @@ class SalesHandler(Handler):
     def post(self):
         ean = self.request.get('ean')
         quantity = float(self.request.get('quantity'))
-        Sale.Process(ean=ean, quantity=quantity)
-        self.redirect('/')
+        eka = self.request.get('eka')
+        Sale.Process(ean=ean, quantity=quantity, eka=eka)
+        self.response.headers["Content-Type"] = "text/plain"
+        product = ndb.Key('Product', ean)
+        product = product.get().description if product.get() else "Nav atrasts"
+        self.response.out.write(product)
+        self.redirect("/")
 
 
 class Utilities(Handler):
@@ -379,59 +394,15 @@ class Overview(Handler):
         self.render('overview.html', **params)
 
 
-class PopulateDB(Handler):
+class ProductLookup(Handler):
     def get(self):
+        ean = self.request.get('ean')
 
-        eans = ['1234567', '1234568', '3421567', '4321234', '2123459']
-        ekas = ['0063', '0040', '0000', '0084', '0704', '1360']
+        product = Product.lookupByKey(ean)
+        r = product.description if product else "Nav atrasts"
 
-        purchases = []
-        for i in range(100):
-
-            dt = '2014 ' + str(random.randint(1, 2)).zfill(2) + ' ' +\
-                str(random.randint(1, 28)).zfill(2) + ' ' +\
-                str(random.randint(8, 18)).zfill(2) + ':' +\
-                str(random.randint(0, 59)).zfill(2) + ':' +\
-                str(random.randint(0, 59)).zfill(2)
-
-            time = datetime.strptime(dt, '%Y %m %d %H:%M:%S')
-
-            q = {'ean': random.choice(eans),
-                 'description': 'Tapete ' + str(random.randint(23450, 99999)) +
-                 ' ' + str(random.randint(5, 100)) + 'm rullis',
-                 'price': float(random.randint(1, 10)),
-                 'quantity': random.randint(1, 15),
-                 'time': time,
-                 }
-            purchases.append(q)
-
-        for purchase in purchases[:20]:
-            Purchase.Process(**purchase)
-
-        sales = []
-        for i in range(100):
-            dt = '2014 ' + str(random.randint(1, 2)).zfill(2) + ' ' +\
-                str(random.randint(1, 28)).zfill(2) + ' ' +\
-                str(random.randint(8, 18)).zfill(2) + ':' +\
-                str(random.randint(0, 59)).zfill(2) + ':' +\
-                str(random.randint(0, 59)).zfill(2)
-
-            time = datetime.strptime(dt, '%Y %m %d %H:%M:%S')
-
-            q = {'ean': random.choice(eans[:3]),
-                 'quantity': random.randint(1, 15),
-                 'time': time,
-                 'eka': random.choice(ekas)
-                 }
-            sales.append(q)
-
-        for sale in sales:
-            Sale.Process(**sale)
-
-        for purchase in purchases[20:]:
-            Purchase.Process(**purchase)
-
-        self.redirect('/')
+        # self.response.headers["Content-Type"] = "text/plain"
+        self.response.out.write(r)
 
 
 app = webapp2.WSGIApplication([
@@ -439,6 +410,6 @@ app = webapp2.WSGIApplication([
     ('/prece/nonemt', SalesHandler),
     ('/parskats', Overview),
     ('/prece', ProductViewer),
-    ('/db', PopulateDB),
+    ('/prece/atrast', ProductLookup),
     ('/', MainPage),
 ], debug=True)
