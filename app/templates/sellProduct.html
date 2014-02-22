@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="info-row">
+    <ol class="breadcrumb">
+        <li><a href="/">Sākums</a></li>
+        <li class="active">Pārdot preci</li>
+    </ol>
+</div>
+
+<span class="alert col-xs-12 {{ msg }}">Prece pievienota!</span>
+
+<div class="row form-group">
+    <form action="/prece/pardot?msg=success" method="POST">
+        <label for="ean" class="col-xs-3">Kods:
+            <input placeholder="1234567" class="form-control" id="ean" type="text" name="ean" required>
+        </label>
+        <label for="quantity" class="col-xs-4">Daudzums
+            <input class="form-control" id="quantity" type="number" step="0.01" min="0" name="quantity" required>
+        </label>
+        <input type="submit" class="btn btn-info pull-right col-xs-2" value="Pārdot">
+    </form>
+</div>
+{% endblock %}

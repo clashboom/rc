@@ -31,7 +31,7 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 //Change to your server domain
-char serverName[] = "6d0178b0.ngrok.com";
+char serverName[] = "3d082f.ngrok.com";
 
 // change to your server's port
 int serverPort = 80;
@@ -120,7 +120,7 @@ void loop()
 
     lookupProduct(buffer);
 
-    /* removeProduct(buffer); */
+    removeProduct(buffer);
 
     Serial.println(buffer);
 
@@ -227,6 +227,7 @@ byte getPage(char* domainBuffer,int thisPort,char* page) {
     sprintf(outBuf,"Host: %s",domainBuffer);
     client.println(outBuf);
     client.println(F("Connection: close\r\nContent-Type: application/x-www-form-urlencoded"));
+    client.println("");
 
     String response;
     char c;
@@ -304,10 +305,11 @@ int dataRead() {
 
 void lookupProduct(char* ean) {
     // params must be url encoded.
-    char pageName[] = "/prece/atrast?ean=fuckyou";
-    //sprintf(pageName,"/prece/atrast?ean=%s", ean);
+    char pageName[64];
+    sprintf(pageName,"/prece/atrast?ean=%s", ean);
     if(!getPage(serverName,serverPort,pageName)) {
         Serial.print(F("Fail "));
+        lcd.clear();
         lcd.print(F("Blje sapliisa"));
     }
     else {
@@ -318,9 +320,10 @@ void lookupProduct(char* ean) {
 void removeProduct(char* ean) {
     // params must be url encoded.
     char pageName[] = "/prece/nonemt";
-    sprintf(params,"ean=%s&quantity=%s&eka=%s", ean, "1", "1234");
+    sprintf(params,"ean=%s&quantity=%s&eka=%s", ean, "1", "1360");
     if(!postPage(serverName,serverPort,pageName,params)) {
         Serial.print(F("Fail "));
+        lcd.clear();
         lcd.print(F("Blje sapliisa"));
     }
     else {

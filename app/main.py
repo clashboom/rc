@@ -5,6 +5,7 @@ import jinja2
 import logging
 import os
 import webapp2
+import unicodedata
 
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
@@ -45,18 +46,32 @@ class Product(ndb.Model):
     eka = ndb.StringProperty('eka')
 
     @classmethod
-    def lookupByKey(cls, id):
+    def lookupByID(cls, id):
+        """
+        lookupByID : string id -> entity ? entity : None
+        Checks for an entity with key id (entity's ID) in memcache,
+        if not found, fetches from database. If not in database, returns None
+        """
         cached_p = memcache.get(id)
         if cached_p is not None:
             return cached_p
         else:
             p = cls.get_by_id(id)
             memcache.add(id, p)
-            return p
+            return p if p else None
+
+    def deleteProduct(self):
+        """
+        deleteProduct : string id -> Boolean
+        given the id, deletes entity both from memcache and db
+        """
+        memcache.delete(self.key.id())
+        self.key.delete()
 
 
 class Transaction(ndb.Model):
     product = ndb.KeyProperty('k', kind='Product')
+    description = ndb.StringProperty('d')
     quantity = ndb.FloatProperty('qt', required=True, default=1)
     price = ndb.FloatProperty('ppi', required=True)
     time = ndb.DateTimeProperty(auto_now_add=True)
@@ -124,6 +139,7 @@ class Purchase(Transaction):
         product.put()
 
         purchase = Purchase(product=ndb.Key('Product', ean),
+                            description=description,
                             quantity=quantity,
                             price=priceIn, eka=product.eka)
         purchase.put()
@@ -138,11 +154,12 @@ class Sale(Transaction):
         quantity = int(quantity)
 
         if product:
+            description = product.description
             price = product.priceOut
             product.inStock -= quantity
             product.put()
-            s = Sale(product=k, quantity=quantity, price=price,
-                     eka=eka)
+            s = Sale(product=k, description=description, quantity=quantity,
+                     price=price, eka=eka)
             if not product.eka:
                 product.eka = eka
             elif product.eka != eka:
@@ -157,7 +174,8 @@ class Sale(Transaction):
 
 class PurchaseHandler(Handler):
     def get(self):
-        self.render("addProduct.html")
+        msg = "alert-success" if self.request.get('msg') else "hidden"
+        self.render("addProduct.html", msg=msg)
 
     def post(self):
         ean = self.request.get('ean')
@@ -167,12 +185,13 @@ class PurchaseHandler(Handler):
         priceOut = float(self.request.get('priceOut'))
         Purchase.Process(ean=ean, quantity=quantity, priceIn=priceIn,
                          priceOut=priceOut, description=description)
-        self.redirect('/')
+        self.redirect('/prece/pievienot?msg=success')
 
 
 class SalesHandler(Handler):
     def get(self):
-        self.render("removeProduct.html")
+        msg = "alert-success" if self.request.get('msg') else "hidden"
+        self.render("sellProduct.html", msg=msg)
 
     def post(self):
         ean = self.request.get('ean')
@@ -193,7 +212,7 @@ class Utilities(Handler):
                    '0040': u'Ilga',
                    '0000': u'Sigita',
                    '0084': u'Daiga',
-                   '0704': u'Ivara',
+                   '0704': u'Ivars',
                    '1360': u'Inga',
                    None: u'Preces, kam nav piešķirta kase'}
         return ekaDict[eka]
@@ -289,6 +308,16 @@ class Utilities(Handler):
                                       order_by="Laiks")
         return jsonified
 
+    @staticmethod
+    def stripLV(s):
+        """
+        function : string -> string
+        stripLV is a function that takes a unicode string and
+        replaces all characters from Latvian language
+        with their ascii equivalents, then returns the string
+        """
+        return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+
 
 class ProductViewer(Handler):
     def get(self):
@@ -299,9 +328,7 @@ class ProductViewer(Handler):
         ean = self.request.get('ean')
 
         if ean:
-            key = ndb.Key('Product', ean)
-            product = key.get()
-
+            product = Product.lookupByID(ean)
             if not product:
                 self.redirect('/prece')
                 return
@@ -312,7 +339,7 @@ class ProductViewer(Handler):
 
             no, lidz = Utilities.translateDates(no=no, lidz=lidz,
                                                 periods=periods)
-            purchases, sales = Utilities.getTransactions(no, lidz, key)
+            purchases, sales = Utilities.getTransactions(no, lidz, product.key)
             transactionData = Utilities.gvizTransactions(purchases, sales)
 
             priceIn = product.priceIn if product else 0
@@ -369,9 +396,8 @@ class Overview(Handler):
         daiga = Eka(u'Daigas', '0084', sales, purchases)
         ivars = Eka(u'Ivara', '0704', sales, purchases)
         inga = Eka(u'Ingas', '1360', sales, purchases)
-        noneka = Eka(u'Preces, kas nav pieškirtas kasei', None, sales=sales,
+        noneka = Eka(u'Bez kases', None, sales=sales,
                      purchases=purchases)
-        logging.info(noneka)
 
         ekas = [viesturs, ilga, sigita, daiga, ivars, inga, noneka]
 
@@ -398,18 +424,59 @@ class ProductLookup(Handler):
     def get(self):
         ean = self.request.get('ean')
 
-        product = Product.lookupByKey(ean)
+        product = Product.lookupByID(ean)
         r = product.description if product else "Nav atrasts"
-
-        # self.response.headers["Content-Type"] = "text/plain"
+        # Have to strip out chars for lcd
+        r = Utilities.stripLV(r)
+        self.response.headers["Content-Type"] = "text/plain"
         self.response.out.write(r)
+
+
+class ProductEdit(Handler):
+    def get(self):
+        ean = self.request.get('ean')
+        msg = "alert-success" if self.request.get('msg') else "hidden"
+        if ean:
+            product = Product.lookupByID(ean)
+            self.render("editProduct.html", product=product,
+                        ean=product.key.id(), msg=msg)
+
+    def post(self):
+        ean = self.request.get('ean')
+        description = self.request.get('description')
+        quantity = float(self.request.get('quantity'))
+        priceIn = float(self.request.get('priceIn'))
+        priceOut = float(self.request.get('priceOut'))
+        eka = self.request.get('eka')
+
+        product = Product.lookupByID(ean)
+        product.description = description
+        product.inStock = quantity
+        product.pirceIn = priceIn
+        product.priceOut = priceOut
+        product.eka = eka
+        product.put()
+        # product.rewriteMemcache()
+
+        self.redirect("/prece/labot?ean=%s&msg=success" % ean)
+
+
+class ProductDelete(Handler):
+    def get(self):
+        ean = self.request.get('ean')
+        product = Product.lookupByID(ean)
+        product.deleteProduct()
+        msg = "alert-success" if self.request.get('msg') else "hidden"
+        self.redirect('/prece', msg=msg)
 
 
 app = webapp2.WSGIApplication([
     ('/prece/pievienot', PurchaseHandler),
-    ('/prece/nonemt', SalesHandler),
+    ('/prece/pardot', SalesHandler),
     ('/parskats', Overview),
     ('/prece', ProductViewer),
     ('/prece/atrast', ProductLookup),
+    ('/prece/labot', ProductEdit),
+    ('/prece/dzest', ProductDelete),
     ('/', MainPage),
 ], debug=True)

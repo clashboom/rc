@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="info-row">
+    <ol class="breadcrumb">
+        <li><a href="/">Sākums</a></li>
+        <li><a href="/prece?ean={{ ean }}">Preces pārskats</a></li>
+        <li class="active">Labot preci</li>
+    </ol>
+</div>
+
+<span class="alert col-xs-12 {{ msg }}">Izmaiņas saglabātas!</span>
+
+
+<div class="row form-group">
+        <a href="/prece/dzest?ean={{ ean }}">
+          <button class="label label-warning pull-right" type="button">Dzēst preci</button>
+        </a>
+    <form action="" method="POST">
+        <label for="ean" class="col-xs-3">Kods:
+            <input value="{{ ean }}" class="form-control" id="ean" type="text" name="ean" disabled>
+        </label>
+        <label for="description" class="col-xs-9">Apraksts
+            <input value="{{ product.description }}" class="form-control" id="description" type="text" name="description">
+        </label>
+        <label for="quantity" class="col-xs-3">Daudzums
+            <input value="{{ product.inStock }}" class="form-control" id="quantity" type="number" step="0.01" min="0" name="quantity" required>
+        </label>
+        <label for="priceIn" class="col-xs-3">Iepirkuma cena:
+            <input value="{{ product.priceIn }}"class="form-control" id="priceIn" type="number" step="0.01" min="0" name="priceIn" required>
+        </label>
+        <label for="priceOut" class="col-xs-3">Pārdošanas cena:
+            <input value="{{ product.priceOut }}" class="form-control" id="priceOut" type="number" step="0.01" min="0" name="priceOut" required>
+        </label>
+        <label for="eka" class="col-xs-3">Kase:
+            <select class="form-control" id="eka" name="eka">
+                <option {{ 'selected' if product.eka == '0063' }} value="0063">Viesturs</option>
+                <option {{ 'selected' if product.eka == '0040' }} value="0040">Ilga</option>
+                <option {{ 'selected' if product.eka == '0000' }} value="0000">Sigita</option>
+                <option {{ 'selected' if product.eka == '0084' }} value="0084">Daiga</option>
+                <option {{ 'selected' if product.eka == '0704' }} value="0704">Ivars</option>
+                <option {{ 'selected' if product.eka == '1360' }} value="1360">Inga</option>
+            </select>
+        </label>
+        <input type="submit" class="btn btn-info pull-right col-xs-2" value="Saglabāt">
+    </form>
+</div>
+
+{% endblock %}

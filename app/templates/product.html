@@ -20,20 +20,23 @@
         {% endif %}
         autofocus>
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Meklēt!</button>
+          <button class="btn btn-default" type="submit">Meklēt!</button>
         </span>
       </div><!-- /input-group -->
     </form>
   </div>
   <hr>
 
-
-
     <div class="result">
 
     {% if product %}
 
     <table class="table table-striped">
+      <caption>
+        <a href="/prece/labot?ean={{ ean }}">
+          <button class="label label-info pull-right" type="button">Labot</button>
+        </a>
+      </caption>
       <thead>
         <th>Kods</th>
         <th>Apraksts</th>
